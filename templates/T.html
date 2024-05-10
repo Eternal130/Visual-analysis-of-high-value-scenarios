@@ -2,14 +2,16 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Highlight Effect</title>
     <!-- 引入 ECharts -->
-    <script src="https://cdn.jsdelivr.net/npm/echarts@5.2.1/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
     <style>
         /* 设置容器的高度 */
         #chart-container {
-            width: 600px;
-            height: 400px;
+            width: 3000px;
+            height: 3000px;
         }
     </style>
 </head>
@@ -18,65 +20,150 @@
 <div id="chart-container"></div>
 <script>
     // 使用 fetch API 读取 GeoJSON 文件
-    const myChart = echarts.init(document.getElementById('chart-container'));
+    const myChart = echarts.init(document.getElementById('chart-container'),'dark');
 
-
-    //boundaryroad10.geojson
-    //signalroad10.geojson
-    //stoplineroad10.geojson
-    //laneroad10.geojson
-    // 加载 GeoJSON 文件
+    // 加载 boundaryroad10.geojson 文件
     fetch('map/boundaryroad10.geojson')
         .then(response => response.json())
-        .catch(error => {
-            console.error('Error loading GeoJSON file1:', error);
-        })
         .then(geojsonData => {
             // 将 GeoJSON 数据直接绘制在地图上
-            console.log(geojsonData)
-            echarts.registerMap('customMap', geojsonData);
-            myChart.setOption({
-                series: [{
-                    type: 'map',
-                    map: 'customMap',
-                    aspectScale: 1.0,
-                    selectedMode: 'single',//选择类型,
-                    hoverable: false,//鼠标经过高亮
-                    roam: true,//鼠标滚轮缩放
-                    itemStyle: {
-                        normal: {
-                            borderWidth: 1,
-                            borderColor: '#ffffff',//区域边框色
-                            areaColor: '#FFDAB9',//区域背景色
-                            label: {
-                                show: true,
-                                textStyle: {
-                                    color: '#6495ED',//文字颜色
-                                    fontSize: 18      //文字大小
-                                }
-                            }
-                        },
-                        emphasis: {                 // 选中样式
-                            borderWidth: 1,
-                            borderColor: '#00ffff',
-                            color: '#ffffff',
-                            label: {
-                                show: true,
-                                textStyle: {
-                                    color: '#ff0000'
-                                }
-                            }
-                        }
-                    }
-                }]
-            });
+            echarts.registerMap('boundaryroadMap', geojsonData);
+
+            // 加载 stoplineroad10.geojson 文件
+            fetch('map/stoplineroad10.geojson')
+                .then(response => response.json())
+                .then(geojsonData => {
+                    // 将 GeoJSON 数据直接绘制在地图上
+                    echarts.registerMap('stoplineroad10', geojsonData);
+                    fetch('map/crosswalkroad10.geojson')
+                    .then(response => response.json())
+                    .then(geojsonData => {
+                        // 将 GeoJSON 数据直接绘制在地图上
+                        echarts.registerMap('crosswalkroad10', geojsonData);
+
+                        fetch('map/laneroad10.geojson')
+                        .then(response => response.json())
+                        .then(geojsonData => {
+                            // 将 GeoJSON 数据直接绘制在地图上
+                            echarts.registerMap('laneroad10', geojsonData);
+
+                            fetch('map/signalroad10.geojson')
+                            .then(response => response.json())
+                            .then(geojsonData => {
+                                // 将 GeoJSON 数据直接绘制在地图上
+                                echarts.registerMap('signalload10', geojsonData);
+
+
+                                myChart.setOption({
+                                    xAxis: [{
+                                        type: "value",
+                                        name:'x'
+                                      }],
+                                      yAxis: [{
+                                        type: "value",
+                                        name:'y'
+                                      }],
+                                    grid: {
+                                        show: true
+                                      },
+                                    borderColor: 'white', // 设置地图边界的颜色为白色
+                                    geo: [{
+                                       
+                                        type: 'map',  // 地图类型为线图
+                                        coordinateSystem: 'geo',  // 使用地理坐标系
+                                        map: 'boundaryroadMap',
+                                        name: 'stopline',  // 设置系列名称，用于区分
+                                        itemStyle: {
+                                            borderColor: 'white', // 设置地图边界的颜色为白色
+                                            emphasis: {
+                                                // 高亮时的样式
+                                                borderWidth: 1,
+                                                borderColor: 'yellow'
+                                            }
+                                        }
+                                    },
+                                    {
+                                       
+                                        type: 'map',  // 地图类型为线图
+                                        coordinateSystem: 'geo',  // 使用地理坐标系
+                                        map: 'stoplineroad10',
+                                        name: 'stopline',  // 设置系列名称，用于区分
+                                        itemStyle: {
+                                            borderColor: 'white', // 设置地图边界的颜色为白色
+                                            emphasis: {
+                                                // 高亮时的样式
+                                                borderWidth: 1,
+                                                borderColor: 'yellow'
+                                            }
+                                        }
+                                    },
+                                    {
+                                        type: 'map',  // 地图类型为线图
+                                        coordinateSystem: 'geo',  // 使用地理坐标系
+                                        map: 'crosswalkroad10',
+                                        name: 'stopline',  // 设置系列名称，用于区分
+                                        itemStyle: {
+                                            borderColor: 'white', // 设置地图边界的颜色为白色
+                                            emphasis: {
+                                                // 高亮时的样式
+                                                borderWidth: 1,
+                                                borderColor: 'yellow'
+                                            }
+                                        }
+                                    },
+                                    {
+                                        type: 'map',  // 地图类型为线图
+                                        coordinateSystem: 'geo',  // 使用地理坐标系
+                                        map: 'laneroad10',
+                                        name: 'stopline',  // 设置系列名称，用于区分
+                                        itemStyle: {
+                                            borderColor: 'white', // 设置地图边界的颜色为白色
+                                            emphasis: {
+                                                // 高亮时的样式
+                                                borderWidth: 1,
+                                                borderColor: 'yellow'
+                                            }
+                                        }
+                                    },
+                                    {
+                                        type: 'map',  // 地图类型为线图
+                                        coordinateSystem: 'geo',  // 使用地理坐标系
+                                        map: 'signalload10',
+                                        name: 'stopline',  // 设置系列名称，用于区分
+                                        itemStyle: {
+                                            emphasis: {
+                                                // 高亮时的样式
+                                                borderWidth: 1,
+                                                borderColor: 'yellow'
+                                            }
+                                        }
+                                    }
+                                    ]
+                                });
+                            
+                            })
+                            .catch(error => {
+                                console.error('Error loading stoplineroad GeoJSON file:', error);
+                            });
+                        
+                        })
+                        .catch(error => {
+                            console.error('Error loading stoplineroad GeoJSON file:', error);
+                        });
+                    
+                    })
+                    .catch(error => {
+                        console.error('Error loading stoplineroad GeoJSON file:', error);
+                    });
+                
+                })
+                .catch(error => {
+                    console.error('Error loading stoplineroad GeoJSON file:', error);
+                });
         })
         .catch(error => {
-            console.error('Error loading GeoJSON file2:', error);
+            console.error('Error loading boundaryroad GeoJSON file:', error);
         });
-
-    // 使用刚指定的配置项和数据显示图表
-
 </script>
 </body>
 </html>
