@@ -14,68 +14,69 @@
     </style>
 </head>
 <body>
-    <!-- 创建一个容器来放置图表 -->
-    <div id="chart-container"></div>
-    <script>
-        // 使用 fetch API 读取 GeoJSON 文件
-var myChart = echarts.init(document.getElementById('chart-container'));
+<!-- 创建一个容器来放置图表 -->
+<div id="chart-container"></div>
+<script>
+    // 使用 fetch API 读取 GeoJSON 文件
+    const myChart = echarts.init(document.getElementById('chart-container'));
 
 
-//boundaryroad10.geojson
-//signalroad10.geojson
-//stoplineroad10.geojson
-//laneroad10.geojson
- // 加载 GeoJSON 文件
- fetch('map/crosswalkroad10.geojson')
- .then(response => response.json())
- .then(geojsonData => {
-     // 将 GeoJSON 数据直接绘制在地图上
-     console.log(geojsonData)
-     echarts.registerMap('customMap', geojsonData);
-     myChart.setOption({
-         series: [{
-             type: 'map',
-             map: 'customMap',
-             aspectScale: 1.0,
-                selectedMode: 'single',//选择类型,
-                hoverable:false,//鼠标经过高亮
-                roam: true,//鼠标滚轮缩放
-                itemStyle: {
-                    normal: {
-                        borderWidth:1,
-                        borderColor:'#ffffff',//区域边框色
-                        areaColor: '#FFDAB9',//区域背景色
-                        label: {
-                            show: true,
-                            textStyle: {
-                                color: '#6495ED',//文字颜色
-                                fontSize:18      //文字大小
+    //boundaryroad10.geojson
+    //signalroad10.geojson
+    //stoplineroad10.geojson
+    //laneroad10.geojson
+    // 加载 GeoJSON 文件
+    fetch('map/boundaryroad10.geojson')
+        .then(response => response.json())
+        .catch(error => {
+            console.error('Error loading GeoJSON file1:', error);
+        })
+        .then(geojsonData => {
+            // 将 GeoJSON 数据直接绘制在地图上
+            console.log(geojsonData)
+            echarts.registerMap('customMap', geojsonData);
+            myChart.setOption({
+                series: [{
+                    type: 'map',
+                    map: 'customMap',
+                    aspectScale: 1.0,
+                    selectedMode: 'single',//选择类型,
+                    hoverable: false,//鼠标经过高亮
+                    roam: true,//鼠标滚轮缩放
+                    itemStyle: {
+                        normal: {
+                            borderWidth: 1,
+                            borderColor: '#ffffff',//区域边框色
+                            areaColor: '#FFDAB9',//区域背景色
+                            label: {
+                                show: true,
+                                textStyle: {
+                                    color: '#6495ED',//文字颜色
+                                    fontSize: 18      //文字大小
+                                }
                             }
-                        }
-                    },
-                    emphasis: {                 // 选中样式
-                        borderWidth:1,
-                        borderColor:'#00ffff',
-                        color: '#ffffff',
-                        label: {
-                            show: true,
-                            textStyle: {
-                                color: '#ff0000'
+                        },
+                        emphasis: {                 // 选中样式
+                            borderWidth: 1,
+                            borderColor: '#00ffff',
+                            color: '#ffffff',
+                            label: {
+                                show: true,
+                                textStyle: {
+                                    color: '#ff0000'
+                                }
                             }
                         }
                     }
-                }
-         }]
-     });
- })
- .catch(error => {
-     console.error('Error loading GeoJSON file:', error);
- });
+                }]
+            });
+        })
+        .catch(error => {
+            console.error('Error loading GeoJSON file2:', error);
+        });
 
-        // 使用刚指定的配置项和数据显示图表
-      
-    
+    // 使用刚指定的配置项和数据显示图表
 
-    </script>
+</script>
 </body>
 </html>
