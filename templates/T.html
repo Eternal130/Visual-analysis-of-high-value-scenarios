@@ -10,8 +10,8 @@
     <style>
         /* 设置容器的高度 */
         #chart-container {
-            width: 3000px;
-            height: 3000px;
+            width: 4000px;
+            height: 4000px;
         }
     </style>
 </head>
@@ -52,9 +52,16 @@
                             .then(geojsonData => {
                                 // 将 GeoJSON 数据直接绘制在地图上
                                 echarts.registerMap('signalload10', geojsonData);
-
+                                var zoom=3
 
                                 myChart.setOption({
+                                    toolbox: {
+                                        feature: {
+                                            // 放大和缩小按钮
+                                            dataZoom: {},
+                                            // 其他工具箱功能...
+                                        }
+                                    },
                                     xAxis: [{
                                         type: "value",
                                         name:'x'
@@ -67,8 +74,19 @@
                                         show: true
                                       },
                                     borderColor: 'white', // 设置地图边界的颜色为白色
-                                    geo: [{
-                                       
+                                    series: [
+                                    {
+                                        type: 'scatter',
+                                        symbolSize: 20, // 设置中心点的大小
+                                        itemStyle: {
+                                            color: 'red' // 设置中心点的颜色
+                                        },
+                                        data: [[180, 180],[90,90]] // 中心点的坐标
+                                    },
+                                   
+                                    {
+                                         center:[-70,-110],
+                                        zoom: zoom, // 设置地图缩放级别
                                         type: 'map',  // 地图类型为线图
                                         coordinateSystem: 'geo',  // 使用地理坐标系
                                         map: 'boundaryroadMap',
@@ -83,7 +101,8 @@
                                         }
                                     },
                                     {
-                                       
+                                        zoom: 1.75, // 设置地图缩放级别
+                                        center:[-70,-110],
                                         type: 'map',  // 地图类型为线图
                                         coordinateSystem: 'geo',  // 使用地理坐标系
                                         map: 'stoplineroad10',
@@ -98,6 +117,9 @@
                                         }
                                     },
                                     {
+                                        zoom: 1.75, // 设置地图缩放级别
+                                       center:[-70,-110],
+                                      
                                         type: 'map',  // 地图类型为线图
                                         coordinateSystem: 'geo',  // 使用地理坐标系
                                         map: 'crosswalkroad10',
@@ -112,6 +134,8 @@
                                         }
                                     },
                                     {
+                                        zoom: zoom, // 设置地图缩放级别
+                                        center:[-70,-110],
                                         type: 'map',  // 地图类型为线图
                                         coordinateSystem: 'geo',  // 使用地理坐标系
                                         map: 'laneroad10',
@@ -126,15 +150,17 @@
                                         }
                                     },
                                     {
+                                        zoom: 0.5, // 设置地图缩放级别
                                         type: 'map',  // 地图类型为线图
                                         coordinateSystem: 'geo',  // 使用地理坐标系
                                         map: 'signalload10',
                                         name: 'stopline',  // 设置系列名称，用于区分
                                         itemStyle: {
+                                            borderColor: 'white', // 设置地图边界的颜色为白色
                                             emphasis: {
                                                 // 高亮时的样式
                                                 borderWidth: 1,
-                                                borderColor: 'yellow'
+                                                borderColor: 'red'
                                             }
                                         }
                                     }
