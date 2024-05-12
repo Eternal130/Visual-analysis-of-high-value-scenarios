@@ -11,7 +11,7 @@ def index(request):
 
 def get_geojson(request, filename):
     # 构建完整的文件路径
-    filepath = os.path.join(r'D:\web\myproject\map', filename)
+    filepath = os.path.join(r'map', filename)
     # 检查文件是否存在
 
     if os.path.exists(filepath):
