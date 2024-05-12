@@ -10,8 +10,8 @@
     <style>
         /* 设置容器的高度 */
         #chart-container {
-            width: 4000px;
-            height: 4000px;
+            width: 2650px;
+            height: 2650px;
         }
     </style>
 </head>
@@ -44,7 +44,7 @@
         {filename: 'boundaryroad10.geojson', mapName: 'boundaryroadMap'},
         {filename: 'stoplineroad10.geojson', mapName: 'stoplineroad10'},
         {filename: 'crosswalkroad10.geojson', mapName: 'crosswalkroad10'},
-        {filename: 'laneroad10.geojson', mapName: 'laneroad10'},
+        {#{filename: 'laneroad10.geojson', mapName: 'laneroad10'},#}
         {filename: 'signalroad10.geojson', mapName: 'signalload10'}
     ];
 
@@ -127,28 +127,28 @@
                             }
                         }
                     },
-                    {
-                        scaleLimit: {
-                            min: 1,  // 最小缩放倍数
-                            max: 10   // 最大缩放倍数
-                        },
-                        zoom: zoom, // 设置地图缩放级别
-                        center: center,
-                        type: 'map',  // 地图类型为线图
-                        coordinateSystem: 'geo',  // 使用地理坐标系
-                        map: 'laneroad10',
-                        name: 'stopline',  // 设置系列名称，用于区分
-                        roam: 'scale',  // 启用地图的拖动功能
-                        itemStyle: {
-                            borderColor: 'white', // 设置地图边界的颜色为白色
-                            borderWidth: 3,
-                            emphasis: {
-                                // 高亮时的样式
-                                borderWidth: 1,
-                                borderColor: 'yellow'
-                            }
-                        }
-                    },
+                    {#{#}
+                    {#    scaleLimit: {#}
+                    {#        min: 1,  // 最小缩放倍数#}
+                    {#        max: 10   // 最大缩放倍数#}
+                    {#    },#}
+                    {#    zoom: zoom, // 设置地图缩放级别#}
+                    {#    center: center,#}
+                    {#    type: 'map',  // 地图类型为线图#}
+                    {#    coordinateSystem: 'geo',  // 使用地理坐标系#}
+                    {#    map: 'laneroad10',#}
+                    {#    name: 'stopline',  // 设置系列名称，用于区分#}
+                    {#    roam: 'scale',  // 启用地图的拖动功能#}
+                    {#    itemStyle: {#}
+                    {#        borderColor: 'white', // 设置地图边界的颜色为白色#}
+                    {#        borderWidth: 3,#}
+                    {#        emphasis: {#}
+                    {#            // 高亮时的样式#}
+                    {#            borderWidth: 1,#}
+                    {#            borderColor: 'yellow'#}
+                    {#        }#}
+                    {#    }#}
+                    {#}#}
 
                 ]
             });
@@ -229,28 +229,28 @@
                                 }
                             }
                         },
-                        {
-                            scaleLimit: {
-                                min: 1,  // 最小缩放倍数
-                                max: 10   // 最大缩放倍数
-                            },
-                            zoom: zoom, // 设置地图缩放级别
-                            center: center,
-                            type: 'map',  // 地图类型为线图
-                            coordinateSystem: 'geo',  // 使用地理坐标系
-                            map: 'laneroad10',
-                            name: 'stopline',  // 设置系列名称，用于区分
-                            roam: 'scale',  // 启用地图的拖动功能
-                            itemStyle: {
-                                borderColor: 'white', // 设置地图边界的颜色为白色
-                                borderWidth: 3,
-                                emphasis: {
-                                    // 高亮时的样式
-                                    borderWidth: 1,
-                                    borderColor: 'yellow'
-                                }
-                            }
-                        },
+                        {#{#}
+                        {#    scaleLimit: {#}
+                        {#        min: 1,  // 最小缩放倍数#}
+                        {#        max: 10   // 最大缩放倍数#}
+                        {#    },#}
+                        {#    zoom: zoom, // 设置地图缩放级别#}
+                        {#    center: center,#}
+                        {#    type: 'map',  // 地图类型为线图#}
+                        {#    coordinateSystem: 'geo',  // 使用地理坐标系#}
+                        {#    map: 'laneroad10',#}
+                        {#    name: 'stopline',  // 设置系列名称，用于区分#}
+                        {#    roam: 'scale',  // 启用地图的拖动功能#}
+                        {#    itemStyle: {#}
+                        {#        borderColor: 'white', // 设置地图边界的颜色为白色#}
+                        {#        borderWidth: 3,#}
+                        {#        emphasis: {#}
+                        {#            // 高亮时的样式#}
+                        {#            borderWidth: 1,#}
+                        {#            borderColor: 'yellow'#}
+                        {#        }#}
+                        {#    }#}
+                        {#},#}
 
                     ]
                 });
