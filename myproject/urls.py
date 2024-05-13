@@ -19,6 +19,7 @@ from django.urls import path
 import myproject.index.views as views
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('',views.index),
-    path('map/<str:filename>/', views.get_geojson, name='get_geojson')
+    path('', views.index),
+    path('map/<str:filename>/', views.get_geojson, name='get_geojson'),
+    path('<str:filename>/', views.get_dataset, name='get_dataset')
 ]
