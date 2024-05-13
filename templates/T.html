@@ -34,6 +34,28 @@
             });
     }
 
+    const dataset = [];
+
+    // 定义一个函数,用于加载dataset文件
+    function loadDataset() {
+        return fetch(`output0.csv`)
+            .then(response => response.text())
+            .then(data => {
+                // 将CSV数据转换为数组
+                let rows = data.split('\n');
+                for (let row of rows) {
+                    dataset.push(row.split(','));
+                }
+                // 删除第一行,因为第一行是列名
+                dataset.shift();
+            })
+            .catch(error => console.error('Error:', error));
+    }
+// 在页面打开时加载数据集,因为卡顿影响性能,暂时注释了
+    window.onload = function () {
+        {#loadDataset();#}
+    };
+
     // 定义一个函数，用于处理加载 GeoJSON 文件时可能出现的错误
     function handleError(error) {
         console.error('Error loading GeoJSON file:', error);
