@@ -19,8 +19,13 @@
 <!-- 创建一个容器来放置图表 -->
 <div id="chart-container"></div>
 <script>
-    var zoom = 3
-    var center = [-40, -80]
+    {#import ms from "./wrapper-b7460963-69b64cfb";#}
+
+    var zoom = 1
+    var center = [0, 0]
+    var currentTimeRange = {start: new Date("2023-04-12 15:59:57.100"), end: new Date("2023-04-12 15:59:58.100")};
+    var dataLoaded = false;
+
     // 使用 fetch API 读取 GeoJSON 文件
     const myChart = echarts.init(document.getElementById('chart-container'), 'dark');
 
@@ -35,6 +40,20 @@
     }
 
     const dataset = [];
+    // 定义一个函数,根据输入的时间范围,输出dataset的子集,时间的格式为2023-04-12 15:59:57.699749
+    // 输入的时间范围要是js的Date对象
+    function getDatasetByTimeRange(startTime, endTime) {
+        let result = [];
+        for (let row of dataset) {
+            let time = new Date(row[10]);
+            if (time >= startTime && time <= endTime) {
+                result.push(row);
+            } else if (time > endTime) {
+                break;
+            }
+        }
+        return result;
+    }
 
     // 定义一个函数,用于加载dataset文件
     function loadDataset() {
@@ -42,18 +61,27 @@
             .then(response => response.text())
             .then(data => {
                 // 将CSV数据转换为数组
+                let regex = /(".*?"|[^,]+)(?=,|$)/g;
                 let rows = data.split('\n');
                 for (let row of rows) {
-                    dataset.push(row.split(','));
+                    let fields = row.match(regex);
+                    // 去掉字段的双引号
+                    {#fields = fields.map(field => field.startsWith('"') && field.endsWith('"') ? field.slice(1, -1) : field);#}
+                    // 将第五列转换为 JSON 对象
+                    {#fields[4] = JSON.parse(fields[4].slice(1, -1).slice(1, -1));#}
+                    dataset.push(fields);
                 }
                 // 删除第一行,因为第一行是列名
                 dataset.shift();
+                dataLoaded = true;
+                {#console.log(dataset)#}
             })
             .catch(error => console.error('Error:', error));
     }
-// 在页面打开时加载数据集,因为卡顿影响性能,暂时注释了
+
+    // 在页面打开时加载数据集,因为卡顿影响性能,暂时注释了
     window.onload = function () {
-        {#loadDataset();#}
+        loadDataset();
     };
 
     // 定义一个函数，用于处理加载 GeoJSON 文件时可能出现的错误
@@ -70,6 +98,79 @@
         {filename: 'signalroad10.geojson', mapName: 'signalload10'}
     ];
 
+    function updateData() {
+
+        if (!dataLoaded) {
+            return;
+        }
+        // 获取需要绘制的数据
+        const data = getDatasetByTimeRange(currentTimeRange.start, currentTimeRange.end);
+        {#console.log(currentTimeRange.start)#}
+        {#console.log(currentTimeRange.end)#}
+        {#console.log(data)#}
+
+        // 将数据转换为 ECharts 需要的格式
+        const seriesData = data.map(function (row) {
+            // 解析第五列的坐标数据
+            {#console.log(row[4])#}
+            {#let coordinates = JSON.parse(row[4]);#}
+            {#console.log(coordinates)#}
+            let coordinates = row[4].split(/[:,]/)
+
+            {#console.log(coordinates)#}
+            {#console.log(coordinates.x)#}
+            // 返回 ECharts 需要的数据格式
+            return [parseFloat(coordinates[1]), parseFloat(coordinates[3])];
+        });
+        {#console.log(seriesData)#}
+
+
+        // 使用 setOption 方法更新图表
+        let option = myChart.getOption();
+        if (option.series.length <= 3) {
+
+// 添加新的数据点
+            option.series.push({
+                data: seriesData,
+                center: center,
+                zoom: zoom, // 设置地图缩放级别
+                type: 'scatter',
+                coordinateSystem: 'cartesian2d',  // 使用笛卡尔坐标系
+                symbolSize: 10,
+                itemStyle: {
+                    color: 'red'
+                },
+                roam: 'scale'
+            });
+        } else {
+
+// 添加新的数据点
+            option.series[3] = {
+                data: seriesData,
+                center: center,
+                zoom: zoom, // 设置地图缩放级别
+                type: 'scatter',
+                coordinateSystem: 'cartesian2d',  // 使用笛卡尔坐标系
+                symbolSize: 10,
+                itemStyle: {
+                    color: 'red'
+                },
+                roam: 'scale'
+            };
+        }
+        myChart.setOption(option);
+
+        // 更新当前的时间范围，假设每次增加1秒
+        currentTimeRange.start.setSeconds(currentTimeRange.start.getSeconds() + 1);
+        currentTimeRange.end.setSeconds(currentTimeRange.end.getSeconds() + 1);
+
+
+    }
+
+    // 定时器，每1ms更新一次数据
+    setInterval(function () {
+        updateData();
+    }, 1000);
     // 使用 reduce 方法来串联所有的 Promise，这样就可以按顺序加载所有的 GeoJSON 文件
     files.reduce((promise, file) => {
         return promise
@@ -172,83 +273,22 @@
 
                 zoom = zoom * zoomn
 
+// 获取当前的 option
+                let option = myChart.getOption();
 
-                myChart.setOption({
-
-                    series: [
-                        {
-                            scaleLimit: {
-                                min: 1,  // 最小缩放倍数
-                                max: 10   // 最大缩放倍数
-                            },
-                            center: center,
-                            zoom: zoom, // 设置地图缩放级别
-                            type: 'map',  // 地图类型为线图
-                            coordinateSystem: 'cartesian2d',  // 使用地理坐标系
-                            map: 'boundaryroadMap',
-                            name: 'stopline',  // 设置系列名称，用于区分
-                            roam: 'scale',  // 启用地图的拖动功能
-                            itemStyle: {
-                                borderColor: 'white', // 设置地图边界的颜色为白色
-                                borderWidth: 3,
-                                emphasis: {
-                                    // 高亮时的样式
-                                    borderWidth: 1,
-                                    borderColor: 'yellow'
-                                }
-                            }
-                        },
-                        {
-                            scaleLimit: {
-                                min: 1.75 / 3,  // 最小缩放倍数
-                                max: 17.5 / 3   // 最大缩放倍数
-                            },
-                            zoom: 1.75 / 3 * zoom, // 设置地图缩放级别
-                            center: center,
-                            type: 'map',  // 地图类型为线图
-                            coordinateSystem: 'cartesian2d',  // 使用地理坐标系
-                            map: 'stoplineroad10',
-                            name: 'stopline',  // 设置系列名称，用于区分
-                            roam: 'scale',  // 启用地图的拖动功能
-                            itemStyle: {
-                                borderColor: 'white', // 设置地图边界的颜色为白色
-                                borderWidth: 3,
-                                emphasis: {
-                                    // 高亮时的样式
-                                    borderWidth: 1,
-                                    borderColor: 'yellow'
-                                }
-                            }
-                        },
-                        {
-                            scaleLimit: {
-                                min: 1.75 / 3,  // 最小缩放倍数
-                                max: 17.5 / 3   // 最大缩放倍数
-                            },
-                            zoom: 1.75 / 3 * zoom, // 设置地图缩放级别
-                            center: center,
-
-                            type: 'map',  // 地图类型为线图
-                            coordinateSystem: 'cartesian2d',  // 使用地理坐标系
-                            map: 'crosswalkroad10',
-                            name: 'stopline',  // 设置系列名称，用于区分
-                            roam: 'scale',  // 启用地图的拖动功能
-                            itemStyle: {
-                                borderColor: 'white', // 设置地图边界的颜色为白色
-                                borderWidth: 3,
-                                emphasis: {
-                                    // 高亮时的样式
-                                    borderWidth: 1,
-                                    borderColor: 'yellow'
-                                }
-                            }
-                        }
-
-                    ]
+// 更新 center 的值
+                option.series.forEach(function (series) {
+                    if(series.map === 'stoplineroad10' || series.map === 'crosswalkroad10'){
+                        series.zoom = 1.75 / 3 * zoom;
+                    }else{
+                        series.zoom = zoom;
+                    }
                 });
+
+// 使用 setOption 方法更新图表
+                myChart.setOption(option);
+
             });
-
-
         })
 </script>
 </body>
