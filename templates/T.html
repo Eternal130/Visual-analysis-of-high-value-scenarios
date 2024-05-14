@@ -306,7 +306,7 @@
     }
 
     // 定时器，每1ms更新一次数据
-    setInterval(function () {
+    intervalId = setInterval(function () {
         updateData();
     }, 1000);
     // 使用 reduce 方法来串联所有的 Promise，这样就可以按顺序加载所有的 GeoJSON 文件
@@ -434,7 +434,7 @@
         })
 </script>
 <script>
-    function loadTime() {
+       function loadTime() {
         if (dataLoaded) {
             // 1. 初始化ECharts实例
             var chartTime = echarts.init(document.getElementById('chart-time'));
@@ -442,7 +442,7 @@
             // 2. 准备数据
             var startdate = new Date("2023-04-12 15:59:56.699682");
             var hourlyData = Array.from({length: 24}, () => Array(6).fill(0));
-            datas.forEach(function (item) {
+            dataset.forEach(function (item) {
                 if (!item || item[3] < 1 || item[3] > 6) {
                     return;
                 }
@@ -454,8 +454,19 @@
                 }
             });
             hourlyData = hourlyData.map(row => row.map(value => value / 100));
+
             // 3. 设置ECharts的选项
+
             var option = {
+                dataZoom: [
+                    {
+                        type: 'slider', // 使用滑动条形式的数据缩放组件
+                        xAxisIndex: 0,
+                        startValue: 0,
+                        endValue: 23, // 设置初始范围为0-23小时
+                        bottom: 0 // 设置组件位置
+                    }
+                ],
                 tooltip: {
                     trigger: 'axis',
                     axisPointer: {
@@ -470,12 +481,12 @@
                 },
                 xAxis: {
                     type: 'category',
-                    data: Array.from({length: 24}, (_, i) => `${i}:00`)
+                    data: Array.from({length: 24}, (_, i) => `${i}:00`),
                 },
                 yAxis: {
                     type: 'value'
                 },
-                series: [
+                                series: [
                     {
                         name: '小型汽车',
                         type: 'line',
@@ -520,8 +531,23 @@
                     }
                 ]
             };
+            var xAxisData = Array.from({length: 24}, (_, i) => `${i}:00`);
+            chartTime.on('datazoom', function (params) {
+                var startIndex = Math.floor(params.start / 100 * (xAxisData.length - 1));
+                var endIndex = Math.floor(params.end / 100 * (xAxisData.length - 1));
+                var startHour = parseInt(xAxisData[startIndex].split(':')[0]);
+                var endHour = parseInt(xAxisData[endIndex].split(':')[0]);
+                console.log('当前选择的时间范围:', `${startHour}:00 - ${endHour}:00`);
+                currentTimeRange.start = new Date((startHour * 3600) + startdate.getTime()),
+                currentTimeRange.end =  new Date((endHour * 3600) + startdate.getTime()),
+                console.log(currentTimeRange.start)
+                clearInterval(intervalId);
+                intervalId = setInterval(function () {
+                    updateData();
+                }, 1000);
+                // 在此处执行您需要的其他操作
+            });
 
-            // 使用setOption方法将选项应用到图表上
             chartTime.setOption(option);
         }
     }
