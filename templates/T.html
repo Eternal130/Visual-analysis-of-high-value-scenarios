@@ -10,19 +10,29 @@
     <style>
         /* 设置容器的高度 */
         #chart-container {
-            width: 1650px;
-            height: 1650px;
+            width: 780px;
+            height: 780px;
+        }
+
+        #chart-time {
+            width: 780px;
+            height: 780px;
         }
     </style>
 </head>
 <body>
 <!-- 创建一个容器来放置图表 -->
-<div id="chart-container"></div>
+<div style="display: flex">
+    {#    地图可视化#}
+    <div id="chart-container"></div>
+    {#    时间轴#}
+    <div id="chart-time"></div>
+</div>
 <script>
     {#import ms from "./wrapper-b7460963-69b64cfb";#}
 
-    var zoom = 1
-    var center = [0, 0]
+    var zoom = 2
+    var center = [-40, -80]
     var currentTimeRange = {start: new Date("2023-04-12 15:59:57.100"), end: new Date("2023-04-12 15:59:58.100")};
     var dataLoaded = false;
 
@@ -39,7 +49,7 @@
             });
     }
 
-    const dataset = [];
+    let dataset = [];
     // 定义一个函数,根据输入的时间范围,输出dataset的子集,时间的格式为2023-04-12 15:59:57.699749
     // 输入的时间范围要是js的Date对象
     function getDatasetByTimeRange(startTime, endTime) {
@@ -57,7 +67,7 @@
 
     // 定义一个函数,用于加载dataset文件
     function loadDataset() {
-        return fetch(`output0.csv`)
+        return fetch(`output.csv`)
             .then(response => response.text())
             .then(data => {
                 // 将CSV数据转换为数组
@@ -74,7 +84,7 @@
                 // 删除第一行,因为第一行是列名
                 dataset.shift();
                 dataLoaded = true;
-                {#console.log(dataset)#}
+                console.log(dataset)
             })
             .catch(error => console.error('Error:', error));
     }
@@ -112,7 +122,7 @@
         // 将数据转换为 ECharts 需要的格式
         const seriesData = data.map(function (row) {
             // 解析第五列的坐标数据
-            {#console.log(row[4])#}
+            {#console.log(row)#}
             {#let coordinates = JSON.parse(row[4]);#}
             {#console.log(coordinates)#}
             let coordinates = row[4].split(/[:,]/)
@@ -120,7 +130,11 @@
             {#console.log(coordinates)#}
             {#console.log(coordinates.x)#}
             // 返回 ECharts 需要的数据格式
-            return [parseFloat(coordinates[1]), parseFloat(coordinates[3])];
+            return {
+                value: [(parseFloat(coordinates[1]) + 40) * zoom, (parseFloat(coordinates[3]) + 80) * zoom],
+                type: row[8],
+                velocity: row[7]
+            };
         });
         {#console.log(seriesData)#}
 
@@ -136,7 +150,7 @@
                 zoom: zoom, // 设置地图缩放级别
                 type: 'scatter',
                 coordinateSystem: 'cartesian2d',  // 使用笛卡尔坐标系
-                symbolSize: 10,
+                symbolSize: 6 * zoom,
                 itemStyle: {
                     color: 'red'
                 },
@@ -151,9 +165,20 @@
                 zoom: zoom, // 设置地图缩放级别
                 type: 'scatter',
                 coordinateSystem: 'cartesian2d',  // 使用笛卡尔坐标系
-                symbolSize: 10,
+                symbolSize: 6 * zoom,
                 itemStyle: {
-                    color: 'red'
+                    color: 'red',
+                    tooltip: {
+                        formatter: function (params) {
+                            return '类型: ' + params.data.type + '<br>' +
+                                '速度: ' + params.data.velocity;
+                        }
+                    },
+                    emphasis: {
+                        tooltip: {
+                            show: true
+                        }
+                    }
                 },
                 roam: 'scale'
             };
@@ -278,9 +303,9 @@
 
 // 更新 center 的值
                 option.series.forEach(function (series) {
-                    if(series.map === 'stoplineroad10' || series.map === 'crosswalkroad10'){
+                    if (series.map === 'stoplineroad10' || series.map === 'crosswalkroad10') {
                         series.zoom = 1.75 / 3 * zoom;
-                    }else{
+                    } else {
                         series.zoom = zoom;
                     }
                 });
@@ -290,6 +315,67 @@
 
             });
         })
+</script>
+<script>
+    // 1. 初始化ECharts实例
+    var chartTime = echarts.init(document.getElementById('chart-time'));
+
+    // 2. 准备数据
+
+    // 将数据集转换为ECharts可以接受的格式
+    var dates = [];
+    var seriesData = {};
+    dataset.forEach(function (item) {
+        var date = new Date(item[10]); // 时间
+        var type = item[8]; // 类型
+        if (!seriesData[type]) {
+            seriesData[type] = [];
+        }
+        seriesData[type].push(1);
+        dates.push(date);
+    });
+
+    // 3. 设置ECharts的选项
+    var option = {
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+                type: 'cross',
+                crossStyle: {
+                    color: '#999'
+                }
+            }
+        },
+        xAxis: {
+            type: 'time',
+            splitLine: {
+                show: false
+            },
+            boundaryGap: false,
+            data: dates
+        },
+        yAxis: {
+            type: 'value'
+        },
+        series: []
+    };
+
+    // 添加系列数据
+    for (var type in seriesData) {
+        option.series.push({
+            name: 'Type ' + type,
+            type: 'line',
+            stack: 'total',
+            areaStyle: {},
+            emphasis: {
+                focus: 'series'
+            },
+            data: seriesData[type]
+        });
+    }
+
+    // 使用setOption方法将选项应用到图表上
+    chartTime.setOption(option);
 </script>
 </body>
 </html>

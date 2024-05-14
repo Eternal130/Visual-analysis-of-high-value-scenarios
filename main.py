@@ -53,3 +53,24 @@ if __name__ == '__main__':
 
         data.to_csv("output" + str(i) + ".csv")
         print("output" + str(i) + ".csv" + " is done!")
+    import pandas as pd
+
+    # 创建一个空的DataFrame用于存储合并后的数据
+    merged_data = pd.DataFrame()
+
+    # 遍历每个输出文件
+    for i in range(10):
+        # 读取输出文件
+        file_path = "output" + str(i) + ".csv"
+        data = pd.read_csv(file_path)
+
+        # 将数据添加到合并后的DataFrame中
+        merged_data = pd.concat([merged_data, data])
+
+    # 按照时间戳和ID进行排序
+    merged_data = merged_data.sort_values(by=['time_meas', 'id'])
+
+    # 将合并后的数据保存为output.csv文件
+    merged_data.to_csv("output.csv", index=False)
+
+    print("合并并排序完成！")
