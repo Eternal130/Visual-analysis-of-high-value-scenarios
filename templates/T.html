@@ -94,7 +94,7 @@
     window.onload = function () {
         loadDataset(function(){
             loadTime();
-        
+
         });
     };
 
@@ -133,11 +133,43 @@
 
             {#console.log(coordinates)#}
             {#console.log(coordinates.x)#}
+            var simpleSize = zoom;
+            var color = 'white';
+            switch(row[3]) {
+                case '1':
+                    simpleSize = 5 * zoom;
+                    color = 'red';
+                    break;
+                case '2':
+                    simpleSize = 4 * zoom;
+                    color = 'blue';
+                    break;
+                case '3':
+                    simpleSize = 4 * zoom;
+                    color = 'green';
+                    break;
+                case '4':
+                    simpleSize = 6 * zoom;
+                    color = 'yellow';
+                    break;
+                case '5':
+                    simpleSize = 6 * zoom;
+                    color = 'purple';
+                    break;
+                case '6':
+                    simpleSize = 6 * zoom;
+                    color = 'orange';
+                    break;
+            }
             // 返回 ECharts 需要的数据格式
             return {
                 value: [(parseFloat(row[5]) + 40) * zoom, (parseFloat(row[6]) + 80) * zoom],
                 type: row[3],
-                velocity: row[2]
+                velocity: row[2],
+                symbolSize: simpleSize,
+                itemStyle: {
+                    color: color
+                }
             };
         });
         {#console.log(seriesData)#}
@@ -154,21 +186,8 @@
                 zoom: zoom, // 设置地图缩放级别
                 type: 'scatter',
                 coordinateSystem: 'cartesian2d',  // 使用笛卡尔坐标系
-                symbolSize: 6 * zoom,
-                itemStyle: {
-                    color: 'red',
-                    tooltip: {
-                        formatter: function (params) {
-                            return '类型: ' + params.data.type + '<br>' +
-                                '速度: ' + params.data.velocity;
-                        }
-                    },
-                    emphasis: {
-                        tooltip: {
-                            show: true
-                        }
-                    }
-                },
+                {#symbolSize: 6 * zoom,#}
+                
                 roam: 'scale'
             });
         } else {
@@ -180,21 +199,7 @@
                 zoom: zoom, // 设置地图缩放级别
                 type: 'scatter',
                 coordinateSystem: 'cartesian2d',  // 使用笛卡尔坐标系
-                symbolSize: 6 * zoom,
-                itemStyle: {
-                    color: 'red',
-                    tooltip: {
-                        formatter: function (params) {
-                            return '类型: ' + params.data.type + '<br>' +
-                                '速度: ' + params.data.velocity;
-                        }
-                    },
-                    emphasis: {
-                        tooltip: {
-                            show: true
-                        }
-                    }
-                },
+                
                 roam: 'scale'
             };
         }
