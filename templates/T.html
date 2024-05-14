@@ -153,11 +153,11 @@
             dataset4.shift();
 
             dataLoaded = true;
-            console.log(dataset);
-            console.log(dataset1);
-            console.log(dataset2);
-            console.log(dataset3);
-            console.log(dataset4);
+            {#console.log(dataset);#}
+            {#console.log(dataset1);#}
+            {#console.log(dataset2);#}
+            {#console.log(dataset3);#}
+            {#console.log(dataset4);#}
 
 
             datas = dataset.concat(dataset1);
@@ -176,7 +176,7 @@
                 }
                 return new Date(a[4]) - new Date(b[4]);
             });
-            console.log(datas);
+            {#console.log(datas);#}
             callback();
         } catch (error) {
             console.error('Error:', error);
@@ -299,8 +299,8 @@
         myChart.setOption(option);
 
         // 更新当前的时间范围，假设每次增加1秒
-        currentTimeRange.start.setSeconds(currentTimeRange.start.getSeconds() + 1);
-        currentTimeRange.end.setSeconds(currentTimeRange.end.getSeconds() + 1);
+        currentTimeRange.start.setMilliseconds(currentTimeRange.start.getMilliseconds() + 1000);
+        currentTimeRange.end.setMilliseconds(currentTimeRange.end.getMilliseconds() + 100);
 
 
     }
@@ -442,7 +442,7 @@
             // 2. 准备数据
             var startdate = new Date("2023-04-12 15:59:56.699682");
             var hourlyData = Array.from({length: 24}, () => Array(6).fill(0));
-            dataset.forEach(function (item) {
+            datas.forEach(function (item) {
                 if (!item || item[3] < 1 || item[3] > 6) {
                     return;
                 }
