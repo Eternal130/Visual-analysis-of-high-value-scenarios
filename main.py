@@ -29,15 +29,15 @@ if __name__ == '__main__':
             json.dump(json_data, file, indent=4)
         data = pd.read_json('output.json')
         # print(data.head(5))
-        data = data[(data['is_moving'] != 0) & (data['type'] != 0)]
+        # data = data[(data['is_moving'] != 0) & (data['type'] != 0)]
         # print(data.head(5))
-        data['id_diff'] = data['id'].diff().fillna(1)
-
-        # 标记差异为1
-        data['id_diff'] = data['id_diff'].apply(lambda x: 1 if x != 0 else 0)
-
-        # 使用cumsum函数重新编号
-        data['new_id'] = data['id_diff'].cumsum()
+        # data['id_diff'] = data['id'].diff().fillna(1)
+        #
+        # # 标记差异为1
+        # data['id_diff'] = data['id_diff'].apply(lambda x: 1 if x != 0 else 0)
+        #
+        # # 使用cumsum函数重新编号
+        # data['new_id'] = data['id_diff'].cumsum()
 
         # print(data.info)
         # 输出重新编号后的结果
@@ -46,10 +46,19 @@ if __name__ == '__main__':
         data['time_meas'] = pd.to_datetime(data['time_meas'], unit='us')
 
         # 根据 'time_meas' 和 'id' 字段进行排序
-        data = data.sort_values(by=['time_meas', 'new_id'])
+        data = data.sort_values(by=['time_meas'])
         # print(data.info)
         # 输出排序后的结果
         # print(data.head(5))
+        # del data['id']
+        del data['seq']
+        del data['is_moving']
+        del data['shape']
+        del data['orientation']
+        del data['heading']
+        data['x'] = data['position'].apply(lambda x: x['x'])
+        data['y'] = data['position'].apply(lambda x: x['y'])
+        del data['position']
 
         data.to_csv("output" + str(i) + ".csv")
         print("output" + str(i) + ".csv" + " is done!")
@@ -68,7 +77,7 @@ if __name__ == '__main__':
         merged_data = pd.concat([merged_data, data])
 
     # 按照时间戳和ID进行排序
-    merged_data = merged_data.sort_values(by=['time_meas', 'id'])
+    merged_data = merged_data.sort_values(by=['time_meas'])
 
     # 将合并后的数据保存为output.csv文件
     merged_data.to_csv("output.csv", index=False)

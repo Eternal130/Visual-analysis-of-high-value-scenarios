@@ -55,7 +55,7 @@
     function getDatasetByTimeRange(startTime, endTime) {
         let result = [];
         for (let row of dataset) {
-            let time = new Date(row[10]);
+            let time = new Date(row[4]);
             if (time >= startTime && time <= endTime) {
                 result.push(row);
             } else if (time > endTime) {
@@ -67,7 +67,7 @@
 
     // 定义一个函数,用于加载dataset文件
     function loadDataset() {
-        return fetch(`output.csv`)
+        return fetch(`output0.csv`)
             .then(response => response.text())
             .then(data => {
                 // 将CSV数据转换为数组
@@ -125,15 +125,15 @@
             {#console.log(row)#}
             {#let coordinates = JSON.parse(row[4]);#}
             {#console.log(coordinates)#}
-            let coordinates = row[4].split(/[:,]/)
+            {#let coordinates = row[4].split(/[:,]/)#}
 
             {#console.log(coordinates)#}
             {#console.log(coordinates.x)#}
             // 返回 ECharts 需要的数据格式
             return {
-                value: [(parseFloat(coordinates[1]) + 40) * zoom, (parseFloat(coordinates[3]) + 80) * zoom],
-                type: row[8],
-                velocity: row[7]
+                value: [(parseFloat(row[5]) + 40) * zoom, (parseFloat(row[6]) + 80) * zoom],
+                type: row[3],
+                velocity: row[2]
             };
         });
         {#console.log(seriesData)#}
@@ -152,7 +152,18 @@
                 coordinateSystem: 'cartesian2d',  // 使用笛卡尔坐标系
                 symbolSize: 6 * zoom,
                 itemStyle: {
-                    color: 'red'
+                    color: 'red',
+                    tooltip: {
+                        formatter: function (params) {
+                            return '类型: ' + params.data.type + '<br>' +
+                                '速度: ' + params.data.velocity;
+                        }
+                    },
+                    emphasis: {
+                        tooltip: {
+                            show: true
+                        }
+                    }
                 },
                 roam: 'scale'
             });
@@ -326,12 +337,12 @@
     var dates = [];
     var seriesData = {};
     dataset.forEach(function (item) {
-        var date = new Date(item[10]); // 时间
-        var type = item[8]; // 类型
+        var date = new Date(item[4]); // 时间
+        var type = item[3]; // 类型
         if (!seriesData[type]) {
-            seriesData[type] = [];
+            seriesData[type] = 0;
         }
-        seriesData[type].push(1);
+        seriesData[type]++;
         dates.push(date);
     });
 
