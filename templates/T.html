@@ -50,11 +50,21 @@
     }
 
     let dataset = [];
+    let dataset1 = [];
+    let dataset2 = [];
+    let dataset3 = [];
+    let dataset4 = [];
+    let dataset5 = [];
+    let dataset6 = [];
+    let dataset7 = [];
+    let dataset8 = [];
+    let dataset9 = [];
+    let datas = [];
     // 定义一个函数,根据输入的时间范围,输出dataset的子集,时间的格式为2023-04-12 15:59:57.699749
     // 输入的时间范围要是js的Date对象
     function getDatasetByTimeRange(startTime, endTime) {
         let result = [];
-        for (let row of dataset) {
+        for (let row of datas) {
             let time = new Date(row[4]);
             if (time >= startTime && time <= endTime) {
                 result.push(row);
@@ -65,29 +75,112 @@
         return result;
     }
 
-    // 定义一个函数,用于加载dataset文件
-    function loadDataset(callback) {
-        return fetch(`output0.csv`)
-            .then(response => response.text())
-            .then(data => {
-                // 将CSV数据转换为数组
-                let regex = /(".*?"|[^,]+)(?=,|$)/g;
-                let rows = data.split('\n');
-                for (let row of rows) {
-                    let fields = row.match(regex);
-                    // 去掉字段的双引号
-                    {#fields = fields.map(field => field.startsWith('"') && field.endsWith('"') ? field.slice(1, -1) : field);#}
-                    // 将第五列转换为 JSON 对象
-                    {#fields[4] = JSON.parse(fields[4].slice(1, -1).slice(1, -1));#}
-                    dataset.push(fields);
+    async function loadDataset(callback) {
+        try {
+            let response = await fetch(`output0.csv`);
+            let data = await response.text();
+            response = null;
+            // 处理第一个CSV文件的数据...
+            // 将CSV数据转换为数组
+            let regex = /(".*?"|[^,]+)(?=,|$)/g;
+            let rows = data.split('\n');
+            for (let row of rows) {
+                let fields = row.match(regex);
+                dataset.push(fields);
+            }
+            rows = null;
+            // 删除第一行,因为第一行是列名
+            dataset.shift();
+
+            let response1 = await fetch(`output1.csv`);
+            let data1 = await response1.text();
+            response1 = null;
+            // 处理第一个CSV文件的数据...
+            // 将CSV数据转换为数组
+            let regex1 = /(".*?"|[^,]+)(?=,|$)/g;
+            let rows1 = data1.split('\n');
+            for (let row of rows1) {
+                let fields = row.match(regex1);
+                dataset1.push(fields);
+            }
+            rows1 = null;
+            // 删除第一行,因为第一行是列名
+            dataset1.shift();
+
+            let response2 = await fetch(`output2.csv`);
+            let data2 = await response2.text();
+            response2 = null;
+            // 处理第一个CSV文件的数据...
+            // 将CSV数据转换为数组
+            let regex2 = /(".*?"|[^,]+)(?=,|$)/g;
+            let rows2 = data2.split('\n');
+            for (let row of rows2) {
+                let fields = row.match(regex2);
+                dataset2.push(fields);
+            }
+            rows2 = null;
+            // 删除第一行,因为第一行是列名
+            dataset2.shift();
+
+            let response3 = await fetch(`output3.csv`);
+            let data3 = await response3.text();
+            response3 = null;
+            // 处理第一个CSV文件的数据...
+            // 将CSV数据转换为数组
+            let regex3 = /(".*?"|[^,]+)(?=,|$)/g;
+            let rows3 = data3.split('\n');
+            for (let row of rows3) {
+                let fields = row.match(regex3);
+                dataset3.push(fields);
+            }
+            rows3 = null;
+            // 删除第一行,因为第一行是列名
+            dataset3.shift();
+
+            let response4 = await fetch(`output4.csv`);
+            let data4 = await response4.text();
+            response4 = null;
+            // 处理第一个CSV文件的数据...
+            // 将CSV数据转换为数组
+            let regex4 = /(".*?"|[^,]+)(?=,|$)/g;
+            let rows4 = data4.split('\n');
+            for (let row of rows4) {
+                let fields = row.match(regex4);
+                dataset4.push(fields);
+            }
+            rows4 = null;
+            // 删除第一行,因为第一行是列名
+            dataset4.shift();
+
+            dataLoaded = true;
+            console.log(dataset);
+            console.log(dataset1);
+            console.log(dataset2);
+            console.log(dataset3);
+            console.log(dataset4);
+
+
+            datas = dataset.concat(dataset1);
+            dataset = null;
+            dataset1 = null;
+            datas = datas.concat(dataset2);
+            dataset2 = null;
+            datas = datas.concat(dataset3);
+            dataset3 = null;
+            datas = datas.concat(dataset4);
+            dataset4 = null;
+
+            datas.sort(function (a, b) {
+                if (!a || !b || !a[4] || !b[4]) {
+                    return 0;  // 如果 a 或 b 是 null 或 undefined，或者 a[4] 或 b[4] 是 null 或 undefined，那么它们被认为是相等的
                 }
-                // 删除第一行,因为第一行是列名
-                dataset.shift();
-                dataLoaded = true;
-                console.log(dataset)
-                callback();
-            })
-            .catch(error => console.error('Error:', error));
+                return new Date(a[4]) - new Date(b[4]);
+            });
+            console.log(datas);
+            callback();
+        } catch (error) {
+            console.error('Error:', error);
+        }
     }
 
     // 在页面打开时加载数据集,因为卡顿影响性能,暂时注释了
@@ -334,10 +427,14 @@
                 myChart.setOption(option);
 
             });
+            
+            myChart.on('click', function (params) {
+                console.log(params);
+            });
         })
 </script>
 <script>
-     function loadTime() {
+    function loadTime() {
         if (dataLoaded) {
             // 1. 初始化ECharts实例
             var chartTime = echarts.init(document.getElementById('chart-time'));
@@ -345,7 +442,7 @@
             // 2. 准备数据
             var startdate = new Date("2023-04-12 15:59:56.699682");
             var hourlyData = Array.from({length: 24}, () => Array(6).fill(0));
-            dataset.forEach(function (item) {
+            datas.forEach(function (item) {
                 if (!item || item[3] < 1 || item[3] > 6) {
                     return;
                 }
