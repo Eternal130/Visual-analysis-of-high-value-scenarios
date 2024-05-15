@@ -35,6 +35,7 @@
     var center = [-40, -80]
     var currentTimeRange = {start: new Date("2023-04-12 15:59:57.100"), end: new Date("2023-04-12 15:59:58.100")};
     var dataLoaded = false;
+    var pause = false;
 
     // 使用 fetch API 读取 GeoJSON 文件
     const myChart = echarts.init(document.getElementById('chart-container'), 'dark');
@@ -300,13 +301,15 @@
 
         // 更新当前的时间范围，假设每次增加1秒
         currentTimeRange.start.setMilliseconds(currentTimeRange.start.getMilliseconds() + 1000);
-        currentTimeRange.end.setMilliseconds(currentTimeRange.end.getMilliseconds() + 100);
+        currentTimeRange.end.setMilliseconds(currentTimeRange.end.getMilliseconds() + 1000);
 
 
     }
 
     // 定时器，每1ms更新一次数据
     intervalId = setInterval(function () {
+        if (pause)
+            return;
         updateData();
     }, 1000);
     // 使用 reduce 方法来串联所有的 Promise，这样就可以按顺序加载所有的 GeoJSON 文件
@@ -543,12 +546,17 @@
                 console.log(currentTimeRange.start)
                 clearInterval(intervalId);
                 intervalId = setInterval(function () {
+                    if(pause)
+                        return;
                     updateData();
                 }, 1000);
                 // 在此处执行您需要的其他操作
             });
 
             chartTime.setOption(option);
+            chartTime.on('click', function (params) {
+              pause = !pause;  
+            })
         }
     }
 </script>

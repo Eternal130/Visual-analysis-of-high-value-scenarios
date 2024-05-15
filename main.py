@@ -46,7 +46,7 @@ if __name__ == '__main__':
         data['time_meas'] = pd.to_datetime(data['time_meas'], unit='us')
 
         # 根据 'time_meas' 和 'id' 字段进行排序
-        data = data.sort_values(by=['time_meas'])
+        data = data.sort_values(by=['time_meas', 'id'])
         # print(data.info)
         # 输出排序后的结果
         # print(data.head(5))
@@ -77,7 +77,7 @@ if __name__ == '__main__':
         merged_data = pd.concat([merged_data, data])
 
     # 按照时间戳和ID进行排序
-    merged_data = merged_data.sort_values(by=['time_meas'])
+    merged_data = merged_data.sort_values(by=['time_meas', 'id'])
 
     # 将合并后的数据保存为output.csv文件
     merged_data.to_csv("output.csv", index=False)
