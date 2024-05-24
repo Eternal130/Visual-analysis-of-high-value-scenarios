@@ -33,7 +33,7 @@
 
     var zoom = 2
     var center = [-40, -80]
-    var currentTimeRange = {start: new Date("2023-04-12 15:59:57.100"), end: new Date("2023-04-12 15:59:58.100")};
+    var currentTimeRange = new Date("2023-04-12 15:59:57.100");
     var dataLoaded = false;
     var pause = false;
 
@@ -47,6 +47,7 @@
             .then(geojsonData => {
                 // 将 GeoJSON 数据直接绘制在地图上
                 echarts.registerMap(mapName, geojsonData);
+                console.log('Loaded:', mapName);
             });
     }
 
@@ -74,6 +75,31 @@
             }
         }
         return result;
+    }
+
+    var ct = 0;
+
+    function getDataByYear(year) {
+        var data = [];
+        var x = ct;
+        var y = ct;
+
+
+        data.push([x, y]);
+        var x = ct * 2;
+        var y = ct * 2;
+
+
+        data.push([x, y]);
+
+        ct++;
+        data.push([100, 100])
+        {#console.log(data)#}
+
+        return {
+            year: year,
+            data: data
+        };
     }
 
     async function loadDataset(callback) {
@@ -186,10 +212,10 @@
 
     // 在页面打开时加载数据集,因为卡顿影响性能,暂时注释了
     window.onload = function () {
-        loadDataset(function(){
-            loadTime();
-
-        });
+        //loadDataset(function () {
+        //    loadTime();
+        //});
+        {#loadTime();#}
     };
 
     // 定义一个函数，用于处理加载 GeoJSON 文件时可能出现的错误
@@ -208,11 +234,8 @@
 
     function updateData() {
 
-        if (!dataLoaded) {
-            return;
-        }
         // 获取需要绘制的数据
-        const data = getDatasetByTimeRange(currentTimeRange.start, currentTimeRange.end);
+        const data = getDatasetByTimeRange(currentTimeRange);
         {#console.log(currentTimeRange.start)#}
         {#console.log(currentTimeRange.end)#}
         {#console.log(data)#}
@@ -229,7 +252,7 @@
             {#console.log(coordinates.x)#}
             var simpleSize = zoom;
             var color = 'white';
-            switch(row[3]) {
+            switch (row[3]) {
                 case '1':
                     simpleSize = 5 * zoom;
                     color = 'red';
@@ -281,7 +304,7 @@
                 type: 'scatter',
                 coordinateSystem: 'cartesian2d',  // 使用笛卡尔坐标系
                 {#symbolSize: 6 * zoom,#}
-                
+
                 roam: 'scale'
             });
         } else {
@@ -293,7 +316,7 @@
                 zoom: zoom, // 设置地图缩放级别
                 type: 'scatter',
                 coordinateSystem: 'cartesian2d',  // 使用笛卡尔坐标系
-                
+
                 roam: 'scale'
             };
         }
@@ -307,11 +330,11 @@
     }
 
     // 定时器，每1ms更新一次数据
-    intervalId = setInterval(function () {
-        if (pause)
-            return;
-        updateData();
-    }, 1000);
+    //intervalId = setInterval(function () {
+    //    if (pause)
+    //        return;
+    //    updateData();
+    //}, 1000);
     // 使用 reduce 方法来串联所有的 Promise，这样就可以按顺序加载所有的 GeoJSON 文件
     files.reduce((promise, file) => {
         return promise
@@ -319,7 +342,6 @@
             .catch(handleError);
     }, Promise.resolve())
         .then(() => {
-
             // 当所有的 GeoJSON 文件都加载完成后，设置 ECharts 的配置
             myChart.setOption({
                 xAxis: {
@@ -335,6 +357,16 @@
                     min: -250,  // 最小值
                     max: 250,  // 最大值
                     splitNumber: 50000  // 分割段数
+                },
+                timeline: {
+                    axisType: 'category',
+                    data: [2021, 2022, 2023], // 时间轴上的年份
+                    currentIndex: 0, // 初始年份索引
+                    //autoPlay: true, // 自动播放
+                    playInterval: 200, // 自动播放间隔时间（毫秒）
+                    loop: true, // 循环播放
+                    //show:false
+
                 },
 
                 series: [
@@ -406,6 +438,32 @@
                         }
                     }
 
+                ],
+                options: [
+                    {
+                        series: [
+                            {
+                                type: 'scatter',
+                                data: getDataByYear(2021).data,
+                            },
+                        ]
+                    },
+                    {
+                        series: [
+                            {
+                                type: 'scatter',
+                                data: getDataByYear(2022).data,
+                            },
+                        ]
+                    },
+                    {
+                        series: [
+                            {
+                                type: 'scatter',
+                                data: getDataByYear(2023).data,
+                            },
+                        ]
+                    },
                 ]
             });
             myChart.on('geoRoam', {geoIndex: 0}, function (params) {
@@ -430,14 +488,51 @@
                 myChart.setOption(option);
 
             });
-            
+            myChart.on('timelinechanged', function (params) {
+                if (params.currentIndex === 0) {
+                    
+                    var option = myChart.getOption();
+                    console.log('old')
+                    console.log(option)
+                    option.options = [
+                    {
+                        series: [
+                            {
+                                type: 'scatter',
+                                data: getDataByYear(2021).data,
+                            },
+                        ]
+                    },
+                    {
+                        series: [
+                            {
+                                type: 'scatter',
+                                data: getDataByYear(2022).data,
+                            },
+                        ]
+                    },
+                    {
+                        series: [
+                            {
+                                type: 'scatter',
+                                data: getDataByYear(2023).data,
+                            },
+                        ]
+                    },
+                ]
+                    console.log('new')
+                    console.log(option)
+                    myChart.setOption(option);
+                }
+                console.log(params.currentIndex)
+            });
             myChart.on('click', function (params) {
                 console.log(params);
             });
         })
 </script>
 <script>
-       function loadTime() {
+    function loadTime() {
         if (dataLoaded) {
             // 1. 初始化ECharts实例
             var chartTime = echarts.init(document.getElementById('chart-time'));
@@ -489,7 +584,7 @@
                 yAxis: {
                     type: 'value'
                 },
-                                series: [
+                series: [
                     {
                         name: '小型汽车',
                         type: 'line',
@@ -542,11 +637,11 @@
                 var endHour = parseInt(xAxisData[endIndex].split(':')[0]);
                 console.log('当前选择的时间范围:', `${startHour}:00 - ${endHour}:00`);
                 currentTimeRange.start = new Date((startHour * 3600) + startdate.getTime()),
-                currentTimeRange.end =  new Date((endHour * 3600) + startdate.getTime()),
-                console.log(currentTimeRange.start)
+                    currentTimeRange.end = new Date((endHour * 3600) + startdate.getTime()),
+                    console.log(currentTimeRange.start)
                 clearInterval(intervalId);
                 intervalId = setInterval(function () {
-                    if(pause)
+                    if (pause)
                         return;
                     updateData();
                 }, 1000);
@@ -555,7 +650,7 @@
 
             chartTime.setOption(option);
             chartTime.on('click', function (params) {
-              pause = !pause;  
+                pause = !pause;
             })
         }
     }
