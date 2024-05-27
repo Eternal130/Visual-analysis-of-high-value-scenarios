@@ -215,7 +215,7 @@
         //loadDataset(function () {
         //    loadTime();
         //});
-        {#loadTime();#}
+        loadTime();
     };
 
     // 定义一个函数，用于处理加载 GeoJSON 文件时可能出现的错误
@@ -343,7 +343,7 @@
     }, Promise.resolve())
         .then(() => {
             // 当所有的 GeoJSON 文件都加载完成后，设置 ECharts 的配置
-            myChart.setOption({
+            var option = {
                 xAxis: {
                     type: 'value',  // 数值轴
                     name: 'X Axis',  // X轴名称
@@ -370,6 +370,15 @@
                 },
 
                 series: [
+                    {
+                        type: 'scatter',
+                        data: [0,0],
+                            emphasis: {
+                                itemStyle: {
+                                    color: 'rgba(255, 0, 0, 0.5)'
+                                }
+                            }
+                        },
                     {
                         scaleLimit: {
                             min: 1,  // 最小缩放倍数
@@ -465,7 +474,10 @@
                         ]
                     },
                 ]
-            });
+            }
+            myChart.setOption(option);
+            console.log(option);
+            console.log(myChart.getOption());
             myChart.on('geoRoam', {geoIndex: 0}, function (params) {
                 // 获取当前地图的缩放级别和中心坐标
                 var zoomn = params.zoom;
@@ -492,8 +504,8 @@
                 if (params.currentIndex === 0) {
                     
                     var option = myChart.getOption();
-                    console.log('old')
-                    console.log(option)
+                    {#console.log('old')#}
+                    {#console.log(option)#}
                     option.options = [
                     {
                         series: [
@@ -520,8 +532,8 @@
                         ]
                     },
                 ]
-                    console.log('new')
-                    console.log(option)
+                    {#console.log('new')#}
+                    {#console.log(option)#}
                     myChart.setOption(option);
                 }
                 console.log(params.currentIndex)
@@ -533,7 +545,7 @@
 </script>
 <script>
     function loadTime() {
-        if (dataLoaded) {
+        if (!dataLoaded) {
             // 1. 初始化ECharts实例
             var chartTime = echarts.init(document.getElementById('chart-time'));
 
