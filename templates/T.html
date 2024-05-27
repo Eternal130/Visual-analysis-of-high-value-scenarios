@@ -544,103 +544,95 @@
         })
 </script>
 <script>
+    loadTime()
     function loadTime() {
-        if (!dataLoaded) {
+        if (dataLoaded) {
             // 1. 初始化ECharts实例
             var chartTime = echarts.init(document.getElementById('chart-time'));
-
+            var hourlyData
+            fetch('time/get_timedata/').then(response => response.json()).then(
+                data => {
+                    console.log(data)
+                    hourlyData = data
+                    var option = {
+                        dataZoom: [
+                            {
+                                type: 'slider', // 使用滑动条形式的数据缩放组件
+                                xAxisIndex: 0,
+                                startValue: 0,
+                                endValue: 23, // 设置初始范围为0-23小时
+                                bottom: 0 // 设置组件位置
+                            }
+                        ],
+                        tooltip: {
+                            trigger: 'axis',
+                            axisPointer: {
+                                type: 'cross',
+                                crossStyle: {
+                                    color: '#999'
+                                }
+                            }
+                        },
+                        legend: {
+                            data: ['Type 1', 'Type 2', 'Type 3', 'Type 4', 'Type 5', 'Type 6']
+                        },
+                        xAxis: {
+                            type: 'category',
+                            data: Array.from({length: 24}, (_, i) => `${i}:00`),
+                        },
+                        yAxis: {
+                            type: 'value'
+                        },
+                        series: [
+                            {
+                                name: '小型汽车',
+                                type: 'line',
+                                stack: 'vehicle',
+                                areaStyle: {},
+                                data: hourlyData.map(row => row[0])
+                            },
+                            {
+                                name: '行人',
+                                type: 'line',
+                                stack: 'vehicle',
+                                areaStyle: {},
+                                data: hourlyData.map(row => row[1])
+                            },
+                            {
+                                name: '非机动车',
+                                type: 'line',
+                                stack: 'vehicle',
+                                areaStyle: {},
+                                data: hourlyData.map(row => row[2])
+                            },
+                            {
+                                name: '卡车',
+                                type: 'line',
+                                stack: 'vehicle',
+                                areaStyle: {},
+                                data: hourlyData.map(row => row[3])
+                            },
+                            {
+                                name: '面包车',
+                                type: 'line',
+                                stack: 'vehicle',
+                                areaStyle: {},
+                                data: hourlyData.map(row => row[4])
+                            },
+                            {
+                                name: '客车',
+                                type: 'line',
+                                stack: 'vehicle',
+                                areaStyle: {},
+                                data: hourlyData.map(row => row[5])
+                            }
+                        ]
+                    };
+                                chartTime.setOption(option);
+                }
+            )
             // 2. 准备数据
-            var startdate = new Date("2023-04-12 15:59:56.699682");
-            var hourlyData = Array.from({length: 24}, () => Array(6).fill(0));
-            datas.forEach(function (item) {
-                if (!item || item[3] < 1 || item[3] > 6) {
-                    return;
-                }
-                var timestamp = new Date(item[4]);
-                var hourDiff = (timestamp.getTime() - startdate.getTime()) / (1000 * 60 * 60); // 转换成小时
-                var hour = Math.floor(hourDiff);
-                if (hour >= 0 && hour < 24) { // 确保只处理在0-23小时范围内的数据
-                    hourlyData[hour][item[3] - 1]++;
-                }
-            });
-            hourlyData = hourlyData.map(row => row.map(value => value / 100));
-
             // 3. 设置ECharts的选项
-
-            var option = {
-                dataZoom: [
-                    {
-                        type: 'slider', // 使用滑动条形式的数据缩放组件
-                        xAxisIndex: 0,
-                        startValue: 0,
-                        endValue: 23, // 设置初始范围为0-23小时
-                        bottom: 0 // 设置组件位置
-                    }
-                ],
-                tooltip: {
-                    trigger: 'axis',
-                    axisPointer: {
-                        type: 'cross',
-                        crossStyle: {
-                            color: '#999'
-                        }
-                    }
-                },
-                legend: {
-                    data: ['Type 1', 'Type 2', 'Type 3', 'Type 4', 'Type 5', 'Type 6']
-                },
-                xAxis: {
-                    type: 'category',
-                    data: Array.from({length: 24}, (_, i) => `${i}:00`),
-                },
-                yAxis: {
-                    type: 'value'
-                },
-                series: [
-                    {
-                        name: '小型汽车',
-                        type: 'line',
-                        stack: 'vehicle',
-                        areaStyle: {},
-                        data: hourlyData.map(row => row[0])
-                    },
-                    {
-                        name: '行人',
-                        type: 'line',
-                        stack: 'vehicle',
-                        areaStyle: {},
-                        data: hourlyData.map(row => row[1])
-                    },
-                    {
-                        name: '非机动车',
-                        type: 'line',
-                        stack: 'vehicle',
-                        areaStyle: {},
-                        data: hourlyData.map(row => row[2])
-                    },
-                    {
-                        name: '卡车',
-                        type: 'line',
-                        stack: 'vehicle',
-                        areaStyle: {},
-                        data: hourlyData.map(row => row[3])
-                    },
-                    {
-                        name: '面包车',
-                        type: 'line',
-                        stack: 'vehicle',
-                        areaStyle: {},
-                        data: hourlyData.map(row => row[4])
-                    },
-                    {
-                        name: '客车',
-                        type: 'line',
-                        stack: 'vehicle',
-                        areaStyle: {},
-                        data: hourlyData.map(row => row[5])
-                    }
-                ]
-            };
             var xAxisData = Array.from({length: 24}, (_, i) => `${i}:00`);
             chartTime.on('datazoom', function (params) {
                 var startIndex = Math.floor(params.start / 100 * (xAxisData.length - 1));
@@ -653,19 +645,14 @@
                     console.log(currentTimeRange.start)
                 clearInterval(intervalId);
                 intervalId = setInterval(function () {
-                    if (pause)
-                        return;
                     updateData();
                 }, 1000);
                 // 在此处执行您需要的其他操作
             });
 
-            chartTime.setOption(option);
-            chartTime.on('click', function (params) {
-                pause = !pause;
-            })
         }
     }
+
 </script>
 </body>
 </html>
