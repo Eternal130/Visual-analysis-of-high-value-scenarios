@@ -30,33 +30,40 @@
 </div>
 <script>
     {#import ms from "./wrapper-b7460963-69b64cfb";#}
-    class Queue { 
+
+    class Queue {
         //用于存储队列中元素的数据结构
-        items = []; 
+        items = [];
+
         //队列添加元素
-        enqueue(element){ 
-            this.items.push(element); 
-        }; 
+        enqueue(element) {
+            this.items.push(element);
+        };
+
         //队列移除元素
-        dequeue(){ 
-            return this.items.shift(); 
+        dequeue() {
+            return this.items.shift();
         };
+
         //查看队列头元素
-        front(){ 
-            return this.items[0]; 
+        front() {
+            return this.items[0];
         };
-        get(i){
+
+        get(i) {
             return this.items[i];
         }
+
         //检查队列的长度
-        size(){ 
-            return this.items.length; 
+        size() {
+            return this.items.length;
         };
+
         //打印队列元素
-        print(){ 
-            console.log(this.items.toString()); 
-        }; 
-    } 
+        print() {
+            console.log(this.items.toString());
+        };
+    }
 
 
     var zoom = 2
@@ -109,19 +116,18 @@
         return result;
     }
 
-    function getData(){
-        if(queue.size() <= 10){
+    function getData() {
+        if (queue.size() <= 10) {
             getDataByYear(currentTimeRange);
             return queue.dequeue();
-        }
-        else{
+        } else {
             return queue.dequeue();
         }
     }
 
     function getDataByYear(time) {
         timea = new Date()
-        timea.setTime(time.getTime() + 8*60*60*1000)
+        timea.setTime(time.getTime() + 8 * 60 * 60 * 1000)
         console.log(timea.toISOString().slice(0, 23).replace('T', ' '));
         fetch(`data/${timea.toISOString().slice(0, 23)}`)
             .then(response => {
@@ -131,8 +137,8 @@
             .then(Data => {
                 {#console.log(Data);#}
                 let regex = /(".*?"|[^,]+)(?=,|$)/g;
-                for(var i=0;i<10;i++){
-                    if(Data[i.toString()].length === 0)
+                for (var i = 0; i < 10; i++) {
+                    if (Data[i.toString()].length === 0)
                         break;
                     {#tempqueue.enqueue(Data[i.toString()]);#}
                     {#console.log(tempqueue.get(i));#}
@@ -175,14 +181,14 @@
                             }
                         };
                     });
-                    {#console.log(seriesData);#}
+                    console.log(seriesData);
                     queue.enqueue(seriesData);
                     {#var rows = tempqueue.get(i).split('\r\n');#}
                 }
                 return queue;
             });
         currentTimeRange.setTime(currentTimeRange.getTime() + 1000);
-        
+
     }
 
     async function loadDataset(callback) {
@@ -446,7 +452,7 @@
                     data: [2021, 2022, 2023, 2024, 2025], // 时间轴上的年份
                     currentIndex: 0, // 初始年份索引
                     //autoPlay: true, // 自动播放
-                    playInterval: 1000, // 自动播放间隔时间（毫秒）
+                    playInterval: 200, // 自动播放间隔时间（毫秒）
                     loop: true, // 循环播放
                     //show:false
 
@@ -455,13 +461,13 @@
                 series: [
                     {
                         type: 'scatter',
-                        data: [0,0],
-                            emphasis: {
-                                itemStyle: {
-                                    color: 'rgba(255, 0, 0, 0.5)'
-                                }
+                        data: [0, 0],
+                        emphasis: {
+                            itemStyle: {
+                                color: 'rgba(255, 0, 0, 0.5)'
                             }
-                        },
+                        }
+                    },
                     {
                         scaleLimit: {
                             min: 1,  // 最小缩放倍数
@@ -533,6 +539,16 @@
                 ],
                 options: [
                     {
+                        tooltip: {
+                            trigger: 'item',
+                            formatter: function (params) {
+                                var data = params.data;
+                                return `X: ${data.value[0]}<br/>
+                                        Y: ${data.value[1]}<br/>
+                                        Type: ${data.type}<br/>
+                                        Velocity: ${data.velocity}`;
+                            }
+                        },
                         series: [
                             {
                                 type: 'scatter',
@@ -541,6 +557,16 @@
                         ]
                     },
                     {
+                        tooltip: {
+                            trigger: 'item',
+                            formatter: function (params) {
+                                var data = params.data;
+                                return `X: ${data.value[0]}<br/>
+                                        Y: ${data.value[1]}<br/>
+                                        Type: ${data.type}<br/>
+                                        Velocity: ${data.velocity}`;
+                            }
+                        },
                         series: [
                             {
                                 type: 'scatter',
@@ -549,6 +575,16 @@
                         ]
                     },
                     {
+                        tooltip: {
+                            trigger: 'item',
+                            formatter: function (params) {
+                                var data = params.data;
+                                return `X: ${data.value[0]}<br/>
+                                        Y: ${data.value[1]}<br/>
+                                        Type: ${data.type}<br/>
+                                        Velocity: ${data.velocity}`;
+                            }
+                        },
                         series: [
                             {
                                 type: 'scatter',
@@ -557,6 +593,16 @@
                         ]
                     },
                     {
+                        tooltip: {
+                            trigger: 'item',
+                            formatter: function (params) {
+                                var data = params.data;
+                                return `X: ${data.value[0]}<br/>
+                                        Y: ${data.value[1]}<br/>
+                                        Type: ${data.type}<br/>
+                                        Velocity: ${data.velocity}`;
+                            }
+                        },
                         series: [
                             {
                                 type: 'scatter',
@@ -565,6 +611,16 @@
                         ]
                     },
                     {
+                        tooltip: {
+                            trigger: 'item',
+                            formatter: function (params) {
+                                var data = params.data;
+                                return `X: ${data.value[0]}<br/>
+                                        Y: ${data.value[1]}<br/>
+                                        Type: ${data.type}<br/>
+                                        Velocity: ${data.velocity}`;
+                            }
+                        },
                         series: [
                             {
                                 type: 'scatter',
@@ -601,52 +657,102 @@
             });
             myChart.on('timelinechanged', function (params) {
                 if (params.currentIndex === 0) {
-                    
+
                     var option = myChart.getOption();
                     {#console.log('old')#}
                     {#console.log(option)#}
                     option.options = [
-                    {
-                        series: [
-                            {
-                                type: 'scatter',
-                                data: getData(),
+                        {
+                            tooltip: {
+                                trigger: 'item',
+                                formatter: function (params) {
+                                    var data = params.data;
+                                    return `X: ${data.value[0]}<br/>
+                                            Y: ${data.value[1]}<br/>
+                                            Type: ${data.type}<br/>
+                                            Velocity: ${data.velocity}`;
+                                }
                             },
-                        ]
-                    },
-                    {
-                        series: [
-                            {
-                                type: 'scatter',
-                                data: getData(),
+                            series: [
+                                {
+                                    type: 'scatter',
+                                    data: getData(),
+                                },
+                            ]
+                        },
+                        {
+                            tooltip: {
+                                trigger: 'item',
+                                formatter: function (params) {
+                                    var data = params.data;
+                                    return `X: ${data.value[0]}<br/>
+                                            Y: ${data.value[1]}<br/>
+                                            Type: ${data.type}<br/>
+                                            Velocity: ${data.velocity}`;
+                                }
                             },
-                        ]
-                    },
-                    {
-                        series: [
-                            {
-                                type: 'scatter',
-                                data: getData(),
+                            series: [
+                                {
+                                    type: 'scatter',
+                                    data: getData(),
+                                },
+                            ]
+                        },
+                        {
+                            tooltip: {
+                                trigger: 'item',
+                                formatter: function (params) {
+                                    var data = params.data;
+                                    return `X: ${data.value[0]}<br/>
+                                            Y: ${data.value[1]}<br/>
+                                            Type: ${data.type}<br/>
+                                            Velocity: ${data.velocity}`;
+                                }
                             },
-                        ]
-                    },
-                    {
-                        series: [
-                            {
-                                type: 'scatter',
-                                data: getData(),
+                            series: [
+                                {
+                                    type: 'scatter',
+                                    data: getData(),
+                                },
+                            ]
+                        },
+                        {
+                            tooltip: {
+                                trigger: 'item',
+                                formatter: function (params) {
+                                    var data = params.data;
+                                    return `X: ${data.value[0]}<br/>
+                                            Y: ${data.value[1]}<br/>
+                                            Type: ${data.type}<br/>
+                                            Velocity: ${data.velocity}`;
+                                }
                             },
-                        ]
-                    },
-                    {
-                        series: [
-                            {
-                                type: 'scatter',
-                                data: getData(),
+                            series: [
+                                {
+                                    type: 'scatter',
+                                    data: getData(),
+                                },
+                            ]
+                        },
+                        {
+                            tooltip: {
+                                trigger: 'item',
+                                formatter: function (params) {
+                                    var data = params.data;
+                                    return `X: ${data.value[0]}<br/>
+                                            Y: ${data.value[1]}<br/>
+                                            Type: ${data.type}<br/>
+                                            Velocity: ${data.velocity}`;
+                                }
                             },
-                        ]
-                    },
-                ]
+                            series: [
+                                {
+                                    type: 'scatter',
+                                    data: getData(),
+                                },
+                            ]
+                        },
+                    ]
                     {#console.log('new')#}
                     {#console.log(option)#}
                     myChart.setOption(option);
@@ -660,6 +766,7 @@
 </script>
 <script>
     loadTime()
+
     function loadTime() {
         if (dataLoaded) {
             // 1. 初始化ECharts实例
@@ -743,7 +850,7 @@
                             }
                         ]
                     };
-                                chartTime.setOption(option);
+                    chartTime.setOption(option);
                 }
             )
             // 2. 准备数据
