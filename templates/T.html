@@ -30,12 +30,43 @@
 </div>
 <script>
     {#import ms from "./wrapper-b7460963-69b64cfb";#}
+    class Queue { 
+        //用于存储队列中元素的数据结构
+        items = []; 
+        //队列添加元素
+        enqueue(element){ 
+            this.items.push(element); 
+        }; 
+        //队列移除元素
+        dequeue(){ 
+            return this.items.shift(); 
+        };
+        //查看队列头元素
+        front(){ 
+            return this.items[0]; 
+        };
+        get(i){
+            return this.items[i];
+        }
+        //检查队列的长度
+        size(){ 
+            return this.items.length; 
+        };
+        //打印队列元素
+        print(){ 
+            console.log(this.items.toString()); 
+        }; 
+    } 
+
 
     var zoom = 2
     var center = [-40, -80]
-    var currentTimeRange = new Date("2023-04-12 15:59:57.100");
+    const currentTimeRange = new Date("2023-04-12 15:59:56.600");
     var dataLoaded = false;
     var pause = false;
+    var queue = new Queue();
+    var tempqueue = new Queue();
+    {#getDataByYear(currentTimeRange);#}
 
     // 使用 fetch API 读取 GeoJSON 文件
     const myChart = echarts.init(document.getElementById('chart-container'), 'dark');
@@ -48,6 +79,7 @@
                 // 将 GeoJSON 数据直接绘制在地图上
                 echarts.registerMap(mapName, geojsonData);
                 console.log('Loaded:', mapName);
+                getDataByYear(currentTimeRange);
             });
     }
 
@@ -77,29 +109,80 @@
         return result;
     }
 
-    var ct = 0;
+    function getData(){
+        if(queue.size() <= 10){
+            getDataByYear(currentTimeRange);
+            return queue.dequeue();
+        }
+        else{
+            return queue.dequeue();
+        }
+    }
 
-    function getDataByYear(year) {
-        var data = [];
-        var x = ct;
-        var y = ct;
-
-
-        data.push([x, y]);
-        var x = ct * 2;
-        var y = ct * 2;
-
-
-        data.push([x, y]);
-
-        ct++;
-        data.push([100, 100])
-        {#console.log(data)#}
-
-        return {
-            year: year,
-            data: data
-        };
+    function getDataByYear(time) {
+        timea = new Date()
+        timea.setTime(time.getTime() + 8*60*60*1000)
+        console.log(timea.toISOString().slice(0, 23).replace('T', ' '));
+        fetch(`data/${timea.toISOString().slice(0, 23)}`)
+            .then(response => {
+                {#console.log(response.text());#}
+                return response.json()
+            })
+            .then(Data => {
+                {#console.log(Data);#}
+                let regex = /(".*?"|[^,]+)(?=,|$)/g;
+                for(var i=0;i<10;i++){
+                    if(Data[i.toString()].length === 0)
+                        break;
+                    {#tempqueue.enqueue(Data[i.toString()]);#}
+                    {#console.log(tempqueue.get(i));#}
+                    const seriesData = Data[i.toString()].map(function (row) {
+                        var simpleSize = zoom;
+                        var color = 'white';
+                        switch (row['type']) {
+                            case 1:
+                                simpleSize = 5 * zoom;
+                                color = 'red';
+                                break;
+                            case 2:
+                                simpleSize = 4 * zoom;
+                                color = 'blue';
+                                break;
+                            case 3:
+                                simpleSize = 4 * zoom;
+                                color = 'green';
+                                break;
+                            case 4:
+                                simpleSize = 6 * zoom;
+                                color = 'yellow';
+                                break;
+                            case 5:
+                                simpleSize = 6 * zoom;
+                                color = 'purple';
+                                break;
+                            case 6:
+                                simpleSize = 6 * zoom;
+                                color = 'orange';
+                                break;
+                        }
+                        return {
+                            value: [(parseFloat(row['x']) + 40) * zoom, (parseFloat(row['y']) + 80) * zoom],
+                            type: row['type'],
+                            velocity: row['velocity'],
+                            symbolSize: simpleSize,
+                            itemStyle: {
+                                color: color
+                            }
+                        };
+                    });
+                    {#console.log(seriesData);#}
+                    queue.enqueue(seriesData);
+                    {#var rows = tempqueue.get(i).split('\r\n');#}
+                }
+                return queue;
+            });
+        currentTimeRange.setTime(currentTimeRange.getTime() + 1000);
+        
     }
 
     async function loadDataset(callback) {
@@ -360,10 +443,10 @@
                 },
                 timeline: {
                     axisType: 'category',
-                    data: [2021, 2022, 2023], // 时间轴上的年份
+                    data: [2021, 2022, 2023, 2024, 2025], // 时间轴上的年份
                     currentIndex: 0, // 初始年份索引
                     //autoPlay: true, // 自动播放
-                    playInterval: 200, // 自动播放间隔时间（毫秒）
+                    playInterval: 1000, // 自动播放间隔时间（毫秒）
                     loop: true, // 循环播放
                     //show:false
 
@@ -453,7 +536,7 @@
                         series: [
                             {
                                 type: 'scatter',
-                                data: getDataByYear(2021).data,
+                                data: getData(),
                             },
                         ]
                     },
@@ -461,7 +544,7 @@
                         series: [
                             {
                                 type: 'scatter',
-                                data: getDataByYear(2022).data,
+                                data: getData(),
                             },
                         ]
                     },
@@ -469,7 +552,23 @@
                         series: [
                             {
                                 type: 'scatter',
-                                data: getDataByYear(2023).data,
+                                data: getData(),
+                            },
+                        ]
+                    },
+                    {
+                        series: [
+                            {
+                                type: 'scatter',
+                                data: getData(),
+                            },
+                        ]
+                    },
+                    {
+                        series: [
+                            {
+                                type: 'scatter',
+                                data: getData(),
                             },
                         ]
                     },
@@ -511,7 +610,7 @@
                         series: [
                             {
                                 type: 'scatter',
-                                data: getDataByYear(2021).data,
+                                data: getData(),
                             },
                         ]
                     },
@@ -519,7 +618,7 @@
                         series: [
                             {
                                 type: 'scatter',
-                                data: getDataByYear(2022).data,
+                                data: getData(),
                             },
                         ]
                     },
@@ -527,7 +626,23 @@
                         series: [
                             {
                                 type: 'scatter',
-                                data: getDataByYear(2023).data,
+                                data: getData(),
+                            },
+                        ]
+                    },
+                    {
+                        series: [
+                            {
+                                type: 'scatter',
+                                data: getData(),
+                            },
+                        ]
+                    },
+                    {
+                        series: [
+                            {
+                                type: 'scatter',
+                                data: getData(),
                             },
                         ]
                     },
@@ -536,7 +651,7 @@
                     {#console.log(option)#}
                     myChart.setOption(option);
                 }
-                console.log(params.currentIndex)
+                {#console.log(params.currentIndex)#}
             });
             myChart.on('click', function (params) {
                 console.log(params);

@@ -21,5 +21,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.index),
     path('map/<str:filename>/', views.get_geojson, name='get_geojson'),
-    path('<str:filename>/', views.get_dataset, name='get_dataset')
+    path('<str:filename>/', views.get_dataset, name='get_dataset'),
+    path('data/<str:time>/', views.get_dataset_by_time, name='get_dataset_by_time')
 ]

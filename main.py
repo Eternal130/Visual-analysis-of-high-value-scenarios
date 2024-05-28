@@ -52,7 +52,7 @@ if __name__ == '__main__':
         # print(data.head(5))
         # del data['id']
         del data['seq']
-        del data['is_moving']
+        # del data['is_moving']
         del data['shape']
         del data['orientation']
         del data['heading']
@@ -83,3 +83,11 @@ if __name__ == '__main__':
     merged_data.to_csv("output.csv", index=False)
 
     print("合并并排序完成！")
+
+
+def loading_data():
+    data = pd.read_csv('output.csv')
+    data.drop(0, inplace=True)
+    return data
+# if __name__ == '__main__':
+#     print(loading_data().iloc[10])
