@@ -765,10 +765,10 @@
         })
 </script>
 <script>
-    loadTime()
+    {#loadTime()#}
 
     function loadTime() {
-        if (dataLoaded) {
+        if (!dataLoaded) {
             // 1. 初始化ECharts实例
             var chartTime = echarts.init(document.getElementById('chart-time'));
             var hourlyData

@@ -86,7 +86,7 @@ if __name__ == '__main__':
 
 
 def loading_data():
-    data = pd.read_csv('output.csv')
+    data = pd.read_csv('outclean.csv')
     data.drop(0, inplace=True)
     return data
 # if __name__ == '__main__':
