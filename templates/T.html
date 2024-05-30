@@ -765,33 +765,24 @@
         })
 </script>
 <script>
-    {#loadTime()#}
-
     function loadTime() {
         if (!dataLoaded) {
             // 1. 初始化ECharts实例
             var chartTime = echarts.init(document.getElementById('chart-time'));
-            var hourlyData
-            fetch('time/get_timedata/').then(response => response.json()).then(
-                data => {
-                    console.log(data)
-                    hourlyData = data
+            var hourlyData;
+            fetch('time/get_timedata/')
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    hourlyData = data;
                     var option = {
-                        dataZoom: [
-                            {
-                                type: 'slider', // 使用滑动条形式的数据缩放组件
-                                xAxisIndex: 0,
-                                startValue: 0,
-                                endValue: 23, // 设置初始范围为0-23小时
-                                bottom: 0 // 设置组件位置
-                            }
-                        ],
                         tooltip: {
                             trigger: 'axis',
                             axisPointer: {
-                                type: 'cross',
-                                crossStyle: {
-                                    color: '#999'
+                                type: 'line',
+                                lineStyle: {
+                                    color: '#999',
+                                    width: 2
                                 }
                             }
                         },
@@ -801,7 +792,11 @@
                         xAxis: {
                             type: 'category',
                             data: Array.from({length: 24}, (_, i) => `${i}:00`),
+                            splitLine: {
+                                show: true
+                            },
                         },
+
                         yAxis: {
                             type: 'value'
                         },
@@ -851,30 +846,26 @@
                         ]
                     };
                     chartTime.setOption(option);
-                }
-            )
-            // 2. 准备数据
-            // 3. 设置ECharts的选项
-            var xAxisData = Array.from({length: 24}, (_, i) => `${i}:00`);
-            chartTime.on('datazoom', function (params) {
-                var startIndex = Math.floor(params.start / 100 * (xAxisData.length - 1));
-                var endIndex = Math.floor(params.end / 100 * (xAxisData.length - 1));
-                var startHour = parseInt(xAxisData[startIndex].split(':')[0]);
-                var endHour = parseInt(xAxisData[endIndex].split(':')[0]);
-                console.log('当前选择的时间范围:', `${startHour}:00 - ${endHour}:00`);
-                currentTimeRange.start = new Date((startHour * 3600) + startdate.getTime()),
-                    currentTimeRange.end = new Date((endHour * 3600) + startdate.getTime()),
-                    console.log(currentTimeRange.start)
-                clearInterval(intervalId);
-                intervalId = setInterval(function () {
-                    updateData();
-                }, 1000);
-                // 在此处执行您需要的其他操作
-            });
 
+                    // 2. 设置ECharts的选项
+                    chartTime.getZr().on('click', function (params) {
+                            var clickedX = params.offsetX;
+                            const startTime = new Date("2023-04-12 15:59:56.600")
+                            // 根据点击位置的 x 坐标计算出对应的 x 轴值
+                            var xAxisData = option.xAxis.data;
+                            var xAxisLength = xAxisData.length;
+                            var clickedIndex = Math.floor(clickedX / chartTime.getWidth() * xAxisLength);
+                            var clickedHour = parseInt(xAxisData[clickedIndex].split(':')[0])-2;
+                            console.log(clickedHour)
+                            var clickedTime = new Date(startTime.getTime() + ((clickedHour) * 3600 * 1000));
+                            console.log('点击的时间:', clickedTime.toLocaleString());
+                            currentTimeRange = clickedTime;
+                            getDataByYear(currentTimeRange);
+                        }
+                    );
+                });
         }
     }
-
 </script>
 </body>
 </html>
