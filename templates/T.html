@@ -68,7 +68,7 @@
 
     var zoom = 2
     var center = [-40, -80]
-    const currentTimeRange = new Date("2023-04-12 15:59:56.600");
+    let currentTimeRange = new Date("2023-04-12 15:59:56.600");
     var dataLoaded = false;
     var pause = false;
     var queue = new Queue();
@@ -128,7 +128,7 @@
     function getDataByYear(time) {
         timea = new Date()
         timea.setTime(time.getTime() + 8 * 60 * 60 * 1000)
-        console.log(timea.toISOString().slice(0, 23).replace('T', ' '));
+        {#console.log(timea.toISOString().slice(0, 23).replace('T', ' '));#}
         fetch(`data/${timea.toISOString().slice(0, 23)}`)
             .then(response => {
                 {#console.log(response.text());#}
@@ -181,7 +181,7 @@
                             }
                         };
                     });
-                    console.log(seriesData);
+                    {#console.log(seriesData);#}
                     queue.enqueue(seriesData);
                     {#var rows = tempqueue.get(i).split('\r\n');#}
                 }
@@ -454,7 +454,7 @@
                     //autoPlay: true, // 自动播放
                     playInterval: 200, // 自动播放间隔时间（毫秒）
                     loop: true, // 循环播放
-                    //show:false
+                    show:false
 
                 },
 
@@ -479,7 +479,7 @@
                         coordinateSystem: 'cartesian2d',  // 使用地理坐标系
                         map: 'boundaryroadMap',
                         name: 'stopline',  // 设置系列名称，用于区分
-                        roam: 'scale',  // 启用地图的拖动功能
+                       
                         itemStyle: {
                             borderColor: 'white', // 设置地图边界的颜色为白色
                             borderWidth: 3,
@@ -501,7 +501,7 @@
                         coordinateSystem: 'cartesian2d',  // 使用地理坐标系
                         map: 'stoplineroad10',
                         name: 'stopline',  // 设置系列名称，用于区分
-                        roam: 'scale',  // 启用地图的拖动功能
+                        
                         itemStyle: {
                             borderColor: 'white', // 设置地图边界的颜色为白色
                             borderWidth: 3,
@@ -524,7 +524,7 @@
                         coordinateSystem: 'cartesian2d',  // 使用地理坐标系
                         map: 'crosswalkroad10',
                         name: 'stopline',  // 设置系列名称，用于区分
-                        roam: 'scale',  // 启用地图的拖动功能
+                       
                         itemStyle: {
                             borderColor: 'white', // 设置地图边界的颜色为白色
                             borderWidth: 3,
@@ -631,30 +631,9 @@
                 ]
             }
             myChart.setOption(option);
-            console.log(option);
-            console.log(myChart.getOption());
-            myChart.on('geoRoam', {geoIndex: 0}, function (params) {
-                // 获取当前地图的缩放级别和中心坐标
-                var zoomn = params.zoom;
+           
 
-                zoom = zoom * zoomn
 
-// 获取当前的 option
-                let option = myChart.getOption();
-
-// 更新 center 的值
-                option.series.forEach(function (series) {
-                    if (series.map === 'stoplineroad10' || series.map === 'crosswalkroad10') {
-                        series.zoom = 1.75 / 3 * zoom;
-                    } else {
-                        series.zoom = zoom;
-                    }
-                });
-
-// 使用 setOption 方法更新图表
-                myChart.setOption(option);
-
-            });
             myChart.on('timelinechanged', function (params) {
                 if (params.currentIndex === 0) {
 
@@ -763,17 +742,42 @@
                 console.log(params);
             });
         })
+
+        myChart.getZr().on('click', function (params) {
+
+        
+            var playState = myChart.getModel().getComponent('timeline').getPlayState();
+    
+            if (playState === true) {
+                myChart.dispatchAction({
+                    type: 'timelinePlayChange',
+                    // 播放状态，true 为自动播放
+                    playState: false
+                })
+    
+                {#console.log('pause');#}
+            } else if (playState === false) {
+                // 如果当前是暂停状态，则点击后播放
+                myChart.dispatchAction({
+                    type: 'timelinePlayChange',
+                    // 播放状态，true 为自动播放
+                    playState: true
+                })
+                {#console.log('play');#}
+            }
+    
+        });
 </script>
 <script>
     function loadTime() {
         if (!dataLoaded) {
             // 1. 初始化ECharts实例
-            var chartTime = echarts.init(document.getElementById('chart-time'));
+            var chartTime = echarts.init(document.getElementById('chart-time'), 'dark');
             var hourlyData;
             fetch('time/get_timedata/')
                 .then(response => response.json())
                 .then(data => {
-                    console.log(data);
+                    {#console.log(data);#}
                     hourlyData = data;
                     var option = {
                         tooltip: {

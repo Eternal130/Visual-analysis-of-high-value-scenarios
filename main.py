@@ -51,7 +51,8 @@ if __name__ == '__main__':
         # 输出排序后的结果
         # print(data.head(5))
         # del data['id']
-        del data['seq']
+        # del data['seq']
+        # del data[data.columns[0]]
         # del data['is_moving']
         del data['shape']
         del data['orientation']
@@ -60,7 +61,7 @@ if __name__ == '__main__':
         data['y'] = data['position'].apply(lambda x: x['y'])
         del data['position']
 
-        data.to_csv("output" + str(i) + ".csv")
+        data.to_csv("output" + str(i) + ".csv", index=False)
         print("output" + str(i) + ".csv" + " is done!")
     import pandas as pd
 
@@ -76,8 +77,13 @@ if __name__ == '__main__':
         # 将数据添加到合并后的DataFrame中
         merged_data = pd.concat([merged_data, data])
 
+    # 创建一个布尔序列，表示每一行的seq值是否大于或等于0
+    condition = merged_data['seq'] >= 0
+
+    # 使用这个条件过滤DataFrame
+    merged_data = merged_data[condition]
     # 按照时间戳和ID进行排序
-    merged_data = merged_data.sort_values(by=['time_meas', 'id'])
+    merged_data = merged_data.sort_values(by=['seq', 'time_meas', 'id'])
 
     # 将合并后的数据保存为output.csv文件
     merged_data.to_csv("output.csv", index=False)
@@ -86,7 +92,7 @@ if __name__ == '__main__':
 
 
 def loading_data():
-    data = pd.read_csv('outclean.csv')
+    data = pd.read_csv('output.csv')
     data.drop(0, inplace=True)
     return data
 # if __name__ == '__main__':
