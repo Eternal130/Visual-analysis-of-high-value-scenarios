@@ -83,7 +83,7 @@ if __name__ == '__main__':
     # 使用这个条件过滤DataFrame
     merged_data = merged_data[condition]
     # 按照时间戳和ID进行排序
-    merged_data = merged_data.sort_values(by=['seq', 'time_meas', 'id'])
+    merged_data = merged_data.sort_values(by=['time_meas', 'id'])
 
     # 将合并后的数据保存为output.csv文件
     merged_data.to_csv("output.csv", index=False)
@@ -92,7 +92,7 @@ if __name__ == '__main__':
 
 
 def loading_data():
-    data = pd.read_csv('output.csv')
+    data = pd.read_csv('outclean.csv')
     data.drop(0, inplace=True)
     return data
 # if __name__ == '__main__':
