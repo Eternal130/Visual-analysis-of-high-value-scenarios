@@ -29,7 +29,6 @@
     <div id="chart-time"></div>
 </div>
 <script>
-    {#import ms from "./wrapper-b7460963-69b64cfb";#}
 
     class Queue {
         //用于存储队列中元素的数据结构
@@ -89,32 +88,7 @@
                 getDataByYear(currentTimeRange);
             });
     }
-
-    let dataset = [];
-    let dataset1 = [];
-    let dataset2 = [];
-    let dataset3 = [];
-    let dataset4 = [];
-    let dataset5 = [];
-    let dataset6 = [];
-    let dataset7 = [];
-    let dataset8 = [];
-    let dataset9 = [];
-    let datas = [];
-    // 定义一个函数,根据输入的时间范围,输出dataset的子集,时间的格式为2023-04-12 15:59:57.699749
-    // 输入的时间范围要是js的Date对象
-    function getDatasetByTimeRange(startTime, endTime) {
-        let result = [];
-        for (let row of datas) {
-            let time = new Date(row[4]);
-            if (time >= startTime && time <= endTime) {
-                result.push(row);
-            } else if (time > endTime) {
-                break;
-            }
-        }
-        return result;
-    }
+    
 
     function getData() {
         if (queue.size() <= 10) {
@@ -172,7 +146,7 @@
                                 break;
                         }
                         return {
-                            value: [(parseFloat(row['x']) + 40) * zoom, (parseFloat(row['y']) + 80) * zoom],
+                            value: [(parseFloat(row['x']) - center[0]) * zoom, (parseFloat(row['y']) - center[1]) * zoom],
                             type: row['type'],
                             velocity: row['velocity'],
                             symbolSize: simpleSize,
@@ -189,114 +163,6 @@
             });
         currentTimeRange.setTime(currentTimeRange.getTime() + 1000);
 
-    }
-
-    async function loadDataset(callback) {
-        try {
-            let response = await fetch(`output0.csv`);
-            let data = await response.text();
-            response = null;
-            // 处理第一个CSV文件的数据...
-            // 将CSV数据转换为数组
-            let regex = /(".*?"|[^,]+)(?=,|$)/g;
-            let rows = data.split('\n');
-            for (let row of rows) {
-                let fields = row.match(regex);
-                dataset.push(fields);
-            }
-            rows = null;
-            // 删除第一行,因为第一行是列名
-            dataset.shift();
-
-            let response1 = await fetch(`output1.csv`);
-            let data1 = await response1.text();
-            response1 = null;
-            // 处理第一个CSV文件的数据...
-            // 将CSV数据转换为数组
-            let regex1 = /(".*?"|[^,]+)(?=,|$)/g;
-            let rows1 = data1.split('\n');
-            for (let row of rows1) {
-                let fields = row.match(regex1);
-                dataset1.push(fields);
-            }
-            rows1 = null;
-            // 删除第一行,因为第一行是列名
-            dataset1.shift();
-
-            let response2 = await fetch(`output2.csv`);
-            let data2 = await response2.text();
-            response2 = null;
-            // 处理第一个CSV文件的数据...
-            // 将CSV数据转换为数组
-            let regex2 = /(".*?"|[^,]+)(?=,|$)/g;
-            let rows2 = data2.split('\n');
-            for (let row of rows2) {
-                let fields = row.match(regex2);
-                dataset2.push(fields);
-            }
-            rows2 = null;
-            // 删除第一行,因为第一行是列名
-            dataset2.shift();
-
-            let response3 = await fetch(`output3.csv`);
-            let data3 = await response3.text();
-            response3 = null;
-            // 处理第一个CSV文件的数据...
-            // 将CSV数据转换为数组
-            let regex3 = /(".*?"|[^,]+)(?=,|$)/g;
-            let rows3 = data3.split('\n');
-            for (let row of rows3) {
-                let fields = row.match(regex3);
-                dataset3.push(fields);
-            }
-            rows3 = null;
-            // 删除第一行,因为第一行是列名
-            dataset3.shift();
-
-            let response4 = await fetch(`output4.csv`);
-            let data4 = await response4.text();
-            response4 = null;
-            // 处理第一个CSV文件的数据...
-            // 将CSV数据转换为数组
-            let regex4 = /(".*?"|[^,]+)(?=,|$)/g;
-            let rows4 = data4.split('\n');
-            for (let row of rows4) {
-                let fields = row.match(regex4);
-                dataset4.push(fields);
-            }
-            rows4 = null;
-            // 删除第一行,因为第一行是列名
-            dataset4.shift();
-
-            dataLoaded = true;
-            {#console.log(dataset);#}
-            {#console.log(dataset1);#}
-            {#console.log(dataset2);#}
-            {#console.log(dataset3);#}
-            {#console.log(dataset4);#}
-
-
-            datas = dataset.concat(dataset1);
-            dataset = null;
-            dataset1 = null;
-            datas = datas.concat(dataset2);
-            dataset2 = null;
-            datas = datas.concat(dataset3);
-            dataset3 = null;
-            datas = datas.concat(dataset4);
-            dataset4 = null;
-
-            datas.sort(function (a, b) {
-                if (!a || !b || !a[4] || !b[4]) {
-                    return 0;  // 如果 a 或 b 是 null 或 undefined，或者 a[4] 或 b[4] 是 null 或 undefined，那么它们被认为是相等的
-                }
-                return new Date(a[4]) - new Date(b[4]);
-            });
-            {#console.log(datas);#}
-            callback();
-        } catch (error) {
-            console.error('Error:', error);
-        }
     }
 
     // 在页面打开时加载数据集,因为卡顿影响性能,暂时注释了
@@ -321,109 +187,6 @@
         {filename: 'signalroad10.geojson', mapName: 'signalload10'}
     ];
 
-    function updateData() {
-
-        // 获取需要绘制的数据
-        const data = getDatasetByTimeRange(currentTimeRange);
-        {#console.log(currentTimeRange.start)#}
-        {#console.log(currentTimeRange.end)#}
-        {#console.log(data)#}
-
-        // 将数据转换为 ECharts 需要的格式
-        const seriesData = data.map(function (row) {
-            // 解析第五列的坐标数据
-            {#console.log(row)#}
-            {#let coordinates = JSON.parse(row[4]);#}
-            {#console.log(coordinates)#}
-            {#let coordinates = row[4].split(/[:,]/)#}
-
-            {#console.log(coordinates)#}
-            {#console.log(coordinates.x)#}
-            var simpleSize = zoom;
-            var color = 'white';
-            switch (row[3]) {
-                case '1':
-                    simpleSize = 5 * zoom;
-                    color = 'red';
-                    break;
-                case '2':
-                    simpleSize = 4 * zoom;
-                    color = 'blue';
-                    break;
-                case '3':
-                    simpleSize = 4 * zoom;
-                    color = 'green';
-                    break;
-                case '4':
-                    simpleSize = 6 * zoom;
-                    color = 'yellow';
-                    break;
-                case '5':
-                    simpleSize = 6 * zoom;
-                    color = 'purple';
-                    break;
-                case '6':
-                    simpleSize = 6 * zoom;
-                    color = 'orange';
-                    break;
-            }
-            // 返回 ECharts 需要的数据格式
-            return {
-                value: [(parseFloat(row[5]) + 40) * zoom, (parseFloat(row[6]) + 80) * zoom],
-                type: row[3],
-                velocity: row[2],
-                symbolSize: simpleSize,
-                itemStyle: {
-                    color: color
-                }
-            };
-        });
-        {#console.log(seriesData)#}
-
-
-        // 使用 setOption 方法更新图表
-        let option = myChart.getOption();
-        if (option.series.length <= 3) {
-
-// 添加新的数据点
-            option.series.push({
-                data: seriesData,
-                center: center,
-                zoom: zoom, // 设置地图缩放级别
-                type: 'scatter',
-                coordinateSystem: 'cartesian2d',  // 使用笛卡尔坐标系
-                {#symbolSize: 6 * zoom,#}
-
-                roam: 'scale'
-            });
-        } else {
-
-// 添加新的数据点
-            option.series[3] = {
-                data: seriesData,
-                center: center,
-                zoom: zoom, // 设置地图缩放级别
-                type: 'scatter',
-                coordinateSystem: 'cartesian2d',  // 使用笛卡尔坐标系
-
-                roam: 'scale'
-            };
-        }
-        myChart.setOption(option);
-
-        // 更新当前的时间范围，假设每次增加1秒
-        currentTimeRange.start.setMilliseconds(currentTimeRange.start.getMilliseconds() + 1000);
-        currentTimeRange.end.setMilliseconds(currentTimeRange.end.getMilliseconds() + 1000);
-
-
-    }
-
-    // 定时器，每1ms更新一次数据
-    //intervalId = setInterval(function () {
-    //    if (pause)
-    //        return;
-    //    updateData();
-    //}, 1000);
     // 使用 reduce 方法来串联所有的 Promise，这样就可以按顺序加载所有的 GeoJSON 文件
     files.reduce((promise, file) => {
         return promise
@@ -631,9 +394,7 @@
                 ]
             }
             myChart.setOption(option);
-           
-
-
+            
             myChart.on('timelinechanged', function (params) {
                 if (params.currentIndex === 0) {
 
@@ -732,11 +493,8 @@
                             ]
                         },
                     ]
-                    {#console.log('new')#}
-                    {#console.log(option)#}
                     myChart.setOption(option);
                 }
-                {#console.log(params.currentIndex)#}
             });
             myChart.on('click', function (params) {
                 console.log(params);
@@ -744,10 +502,8 @@
         })
 
         myChart.getZr().on('click', function (params) {
-
-        
+            
             var playState = myChart.getModel().getComponent('timeline').getPlayState();
-    
             if (playState === true) {
                 myChart.dispatchAction({
                     type: 'timelinePlayChange',
@@ -755,7 +511,6 @@
                     playState: false
                 })
     
-                {#console.log('pause');#}
             } else if (playState === false) {
                 // 如果当前是暂停状态，则点击后播放
                 myChart.dispatchAction({
@@ -763,7 +518,6 @@
                     // 播放状态，true 为自动播放
                     playState: true
                 })
-                {#console.log('play');#}
             }
     
         });
@@ -777,7 +531,6 @@
             fetch('time/get_timedata/')
                 .then(response => response.json())
                 .then(data => {
-                    {#console.log(data);#}
                     hourlyData = data;
                     var option = {
                         tooltip: {
@@ -866,9 +619,9 @@
                             var xAxisLength = xAxisData.length;
                             var clickedIndex = Math.floor(clickedX / chartTime.getWidth() * xAxisLength);
                             var clickedHour = parseInt(xAxisData[clickedIndex].split(':')[0])-2;
-                            console.log(clickedHour)
+                            {#console.log(clickedHour)#}
                             var clickedTime = new Date(startTime.getTime() + ((clickedHour) * 3600 * 1000));
-                            console.log('点击的时间:', clickedTime.toLocaleString());
+                            {#console.log('点击的时间:', clickedTime.toLocaleString());#}
                             currentTimeRange = clickedTime;
                             getDataByYear(currentTimeRange);
                         }
